@@ -1,21 +1,13 @@
 package FFmpeg::FFprobe; 
 
 # cpan
-use Moose; 
+use Moose::Role; 
 use namespace::autoclean; 
 
 # pragma
 use autodie; 
 use warnings FATAL => 'all'; 
 use experimental qw(signatures); 
-
-with qw/FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle/; 
-
-has 'name', (
-    is       => 'ro', 
-    isa      => 'Str', 
-    required => 1, 
-); 
 
 has 'ffprobe', ( 
     is       => 'ro', 
@@ -64,13 +56,6 @@ sub select_stream ( $self, $stream, $table ) {
         
         if ( exists $table->{$choice} ) { return $choice }  
     } 
-} 
-
-sub BUILD ( $self, @args ) { 
-    $self->ffprobe; 
-    $self->video_id; 
-    $self->audio_id; 
-    $self->sub_id; 
 } 
 
 1; 
