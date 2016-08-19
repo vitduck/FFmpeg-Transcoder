@@ -1,4 +1,4 @@
-package FFMPEG; 
+package FFmpeg::FFprobe; 
 
 # cpan
 use Moose; 
@@ -9,7 +9,7 @@ use autodie;
 use warnings FATAL => 'all'; 
 use experimental qw(signatures); 
 
-with qw/Video Audio Subtitle/; 
+with qw/FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle/; 
 
 has 'name', (
     is       => 'ro', 

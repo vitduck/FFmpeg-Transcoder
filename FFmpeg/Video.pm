@@ -1,4 +1,4 @@
-package Video; 
+package FFmpeg::Video; 
 
 # pragma
 use autodie; 

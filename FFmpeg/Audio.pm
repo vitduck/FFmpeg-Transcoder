@@ -1,4 +1,4 @@
-package Audio; 
+package FFmpeg::Audio; 
 
 # pragma
 use autodie; 

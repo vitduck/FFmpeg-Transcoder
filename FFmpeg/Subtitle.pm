@@ -1,4 +1,4 @@
-package Subtitle; 
+package FFmpeg::Subtitle; 
 
 # pragma
 use autodie; 
