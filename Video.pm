@@ -48,4 +48,21 @@ has 'height', (
     },   
 ); 
 
+has 'scaled_height', ( 
+    is       => 'ro', 
+    isa      => 'Int', 
+    required => 1, 
+); 
+
+has 'scaled_width', ( 
+    is       => 'ro', 
+    isa      => 'Int', 
+    lazy     => 1, 
+    init_arg => undef, 
+
+    default  => sub ( $self ) { 
+        return int($self->scaled_height * $self->width / $self->height);   
+    },  
+); 
+
 1;  

@@ -26,7 +26,7 @@ has 'ffprobe', (
     default  => sub ( $self ) { 
         my $ffprobe = {}; 
 
-        open my $pipe, "ffprobe ${\$self->name} 2>&1 |"; 
+        open my $pipe, "-|", "ffprobe ${\$self->name} 2>&1"; 
         while ( <$pipe> ) {  
             # video stream, width and height  
             if ( /Stream #0:(\d)(\(.+?\))?: Video:.+?(?<width>\d+)x(?<height>\d+)/ ) { 
@@ -68,6 +68,9 @@ sub select_stream ( $self, $stream, $table ) {
 
 sub BUILD ( $self, @args ) { 
     $self->ffprobe; 
+    $self->video_id; 
+    $self->audio_id; 
+    $self->sub_id; 
 } 
 
 1; 
