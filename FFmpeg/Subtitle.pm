@@ -20,14 +20,18 @@ use experimental qw(signatures);
 requires 'select_stream'; 
 
 has 'sub_id', ( 
-    is       => 'ro', 
-    isa      => 'Str', 
-    lazy     => 1, 
-    init_arg => undef, 
-    predicate => 'has_sub',  
+    is        => 'ro', 
+    isa       => 'Str', 
+    lazy      => 1, 
+    init_arg  => undef, 
+    predicate => 'has_sub_id', 
 
-    default  => sub ( $self ) { 
-        return $self->select_stream('Subtitle', $self->subtitle); 
+    default   => sub ( $self ) { 
+        return ( 
+            $self->has_subtitle ? 
+            $self->select_stream('Subtitle', $self->subtitle) : 
+            'none'
+        ) 
     },  
 );   
 

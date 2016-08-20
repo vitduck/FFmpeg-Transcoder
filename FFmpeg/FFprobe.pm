@@ -42,10 +42,18 @@ has 'ffprobe', (
     },  
 
     # currying delegation 
-    handles => { map { $_ => [ get => $_ ] } qw/video audio subtitle/ },  
+    handles => { 
+        # accessor 
+        ( map { $_ => [ get => $_ ] } qw/video audio subtitle/ ), 
+
+        # predicate 
+        ( map { 'has_'.$_ => [ exists => $_ ] } qw/video audio subtitle/ ), 
+    },  
 ); 
 
 sub select_stream ( $self, $stream, $table ) {  
+    if ( not $table->%* ) { return }  
+
     while (1) { 
         print "\n$stream:\n"; 
         for my $id ( sort keys $table->%* ) { 

@@ -104,13 +104,13 @@ has 'filter', (
     default  => sub ( $self ) { 
         my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
         my $ass_filter   = "ass=${\$self->ass}"; 
-        return $self->has_sub ? join(',', $scale_filter, $ass_filter) : $scale_filter; 
+        return $self->has_subtitle ? join(',', $scale_filter, $ass_filter) : $scale_filter; 
     } 
 ); 
 
 # Moose methods 
 sub modify_sub ( $self ) { 
-    if ( not $self->has_sub ) { return } 
+    if ( not $self->has_subtitle ) { return } 
     
     # inplace editting 
     local ( $^I, @ARGV ) = ( '~', $self->ass ); 
@@ -159,7 +159,7 @@ sub transcode ( $self ) {
 }
 
 sub clean ( $self ) { 
-    if ( $self->has_sub ) { 
+    if ( $self->has_subtitle ) { 
         unlink $self->ass; 
     }
 } 
@@ -170,7 +170,7 @@ sub BUILD ( $self, @args ) {
     $self->audio_id; 
     $self->sub_id; 
 
-    if ( $self->has_sub ) { 
+    if ( $self->has_subtitle ) { 
         $self->extract_sub; 
         $self->modify_sub; 
     } 
