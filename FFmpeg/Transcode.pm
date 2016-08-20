@@ -156,15 +156,24 @@ sub transcode ( $self ) {
     my $filter_opt = "-vf ${\$self->filter}"; 
 
     system "ffmpeg $opts -i ${\$self->input} $video_opt $audio_opt $filter_opt ${\$self->output}"; 
-    if ( $self->has_sub ) { unlink $self->ass }
 }
+
+sub clean ( $self ) { 
+    if ( $self->has_sub ) { 
+        unlink $self->ass; 
+    }
+} 
 
 sub BUILD ( $self, @args ) { 
     $self->ffprobe; 
     $self->video_id; 
     $self->audio_id; 
     $self->sub_id; 
-    $self->output; 
+
+    if ( $self->has_sub ) { 
+        $self->extract_sub; 
+        $self->modify_sub; 
+    } 
 } 
 
 # speed-up object construction 
