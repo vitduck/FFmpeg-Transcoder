@@ -21,7 +21,7 @@ has 'ffprobe', (
         open my $pipe, "-|", "ffprobe ${\$self->input} 2>&1"; 
         while ( <$pipe> ) {  
             # video stream, width and height  
-            if ( /Stream #(\d:\d)(\(.+?\))?: Video:.+?(?<width>\d+)x(?<height>\d+)/ ) { 
+            if ( /Stream #(\d:\d)(\(.+?\))?: Video:.+?(?<width>\d{3,})x(?<height>\d{3,})/ ) { 
                 $ffprobe->{video}{$1}->@{qw/width height/} = ( $+{width}, $+{height} ); 
             } 
 
