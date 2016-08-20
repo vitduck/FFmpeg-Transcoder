@@ -61,11 +61,18 @@ has 'font_name', (
     required => 1, 
 ); 
 
-has 'minimum_font_size', ( 
+has 'min_font_size', ( 
     is       => 'ro', 
     isa      => 'Int', 
     init_arg => undef,
     default  => 28, 
+); 
+
+has 'max_font_size',  ( 
+    is       => 'ro', 
+    isa      => 'Int', 
+    init_arg => undef,
+    default  => 36, 
 ); 
 
 has 'x264', ( 
@@ -124,8 +131,10 @@ sub modify_sub ( $self ) {
 
             # fontsize 
             my $font_size  = int($self->scaled_height * $+{font_size} / $self->height);  
-            $font_size = $font_size < $self->minimum_font_size ? 
-                         $self->minimum_font_size : 
+            $font_size = $font_size < $self->min_font_size ? 
+                         $self->min_font_size : 
+                         $font_size > $self->max_font_size ? 
+                         $self->max_font_size : 
                          $font_size; 
 
             # replace font 
