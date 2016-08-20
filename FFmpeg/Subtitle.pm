@@ -21,6 +21,7 @@ has 'sub_id', (
     isa      => 'Int', 
     lazy     => 1, 
     init_arg => undef, 
+    predicate => 'has_sub',  
 
     default  => sub ( $self ) { 
         return $self->select_stream('Subtitle', $self->subtitle); 
@@ -37,6 +38,7 @@ has 'ass', (
         return my $ass = $self->name =~ s/(.*)\..+?$/$1.ass/r; 
     },  
 ); 
+
 
 sub extract_sub ( $self ) { 
     system "ffmpeg -y -loglevel fatal  -i ${\$self->name} -map 0:${\$self->sub_id} ${\$self->ass}"; 
