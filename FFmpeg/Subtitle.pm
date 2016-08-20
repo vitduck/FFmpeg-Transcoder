@@ -1,5 +1,8 @@
 package FFmpeg::Subtitle; 
 
+# core 
+use File::Basename; 
+
 # pragma
 use autodie; 
 use warnings FATAL => 'all'; 
@@ -18,7 +21,7 @@ requires 'select_stream';
 
 has 'sub_id', ( 
     is       => 'ro', 
-    isa      => 'Int', 
+    isa      => 'Str', 
     lazy     => 1, 
     init_arg => undef, 
     predicate => 'has_sub',  
@@ -35,13 +38,13 @@ has 'ass', (
     init_arg => undef, 
 
     default  => sub ( $self ) { 
-        return my $ass = $self->name =~ s/(.*)\..+?$/$1.ass/r; 
+        return my $ass = basename($self->input) =~ s/(.*)\..+?$/$1.ass/r; 
     },  
 ); 
 
-
 sub extract_sub ( $self ) { 
-    system "ffmpeg -y -loglevel fatal  -i ${\$self->name} -map 0:${\$self->sub_id} ${\$self->ass}"; 
+    system 'ffmpeg', '-y', '-loglevel', 'fatal',  
+                     '-i', $self->input, '-map', $self->sub_id, $self->ass; 
 } 
 
 1;  

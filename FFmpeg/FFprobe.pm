@@ -18,15 +18,15 @@ has 'ffprobe', (
     default  => sub ( $self ) { 
         my $ffprobe = {}; 
 
-        open my $pipe, "-|", "ffprobe ${\$self->name} 2>&1"; 
+        open my $pipe, "-|", "ffprobe ${\$self->input} 2>&1"; 
         while ( <$pipe> ) {  
             # video stream, width and height  
-            if ( /Stream #0:(\d)(\(.+?\))?: Video:.+?(?<width>\d+)x(?<height>\d+)/ ) { 
+            if ( /Stream #(\d:\d)(\(.+?\))?: Video:.+?(?<width>\d+)x(?<height>\d+)/ ) { 
                 $ffprobe->{video}{$1}->@{qw/width height/} = ( $+{width}, $+{height} ); 
             } 
 
             # audio/subtitle stream
-            if ( /Stream #0:(\d)(?:\((.+?)\))?: (?<stream>audio|subtitle)/i ) {  
+            if ( /Stream #(\d:\d)(?:\((.+?)\))?: (?<stream>audio|subtitle)/i ) {  
                 my ( $id, $lang ) = ( $1, $2); 
                 my $stream         = $+{stream};  
             
@@ -47,8 +47,8 @@ has 'ffprobe', (
 
 sub select_stream ( $self, $stream, $table ) {  
     while (1) { 
-        print "$stream:\n"; 
-        for my $id ( sort { $a <=> $b } keys $table->%* ) { 
+        print "\n$stream:\n"; 
+        for my $id ( sort keys $table->%* ) { 
             print "[$id] $table->{$id}\n"; 
         } 
         print "-> "; 

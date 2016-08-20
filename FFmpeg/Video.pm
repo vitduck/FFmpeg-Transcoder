@@ -13,7 +13,7 @@ use experimental qw(signatures);
 
 has 'video_id', ( 
     is       => 'ro', 
-    isa      => 'Int', 
+    isa      => 'Str', 
     lazy     => 1, 
     init_arg => undef, 
 
