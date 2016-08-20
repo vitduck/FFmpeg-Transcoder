@@ -1,2 +1,2 @@
-# rewrite
-A simple transcoder
+# Transcoder
+A simple ffmpeg wrapper for transcoding file
