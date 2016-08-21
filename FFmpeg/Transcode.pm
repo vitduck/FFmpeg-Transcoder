@@ -139,6 +139,9 @@ sub modify_sub ( $self ) {
 
             # replace font 
             s/^Style.*$/Style: $font_style,${\$self->font_name},$font_size,$properties/; 
+
+            # lower the vmargin (the next to last number in style definition )
+            s/^(Style:.+?),(\d+),(\d+)$/$1,10,$2/; 
         }
 
         # write to file 
