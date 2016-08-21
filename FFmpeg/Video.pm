@@ -14,7 +14,6 @@ has 'video_id', (
     is       => 'ro', 
     isa      => 'Str', 
     lazy     => 1, 
-    init_arg => undef, 
 
     default  => sub ( $self ) { 
         (keys $self->video->%*)[0]; 

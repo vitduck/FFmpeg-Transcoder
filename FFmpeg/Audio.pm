@@ -15,7 +15,6 @@ has 'audio_id', (
     is       => 'ro', 
     isa      => 'Str', 
     lazy     => 1, 
-    init_arg => undef, 
 
     default  => sub ( $self ) { 
         $self->select_stream('Audio', $self->audio); 

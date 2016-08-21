@@ -19,7 +19,6 @@ has 'sub_id', (
     is        => 'ro', 
     isa       => 'Str', 
     lazy      => 1, 
-    init_arg  => undef, 
 
     default   => sub ( $self ) { 
         $self->has_subtitle ? 

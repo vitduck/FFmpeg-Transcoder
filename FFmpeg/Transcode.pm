@@ -140,7 +140,7 @@ sub transcode ( $self ) {
            '-stats', '-y', '-threads', 0, 
            '-i', $self->input,  
            '-map', $self->video_id, '-c:v', 'libx264', 
-           '-profile:v', $self->profile, '-preset', $self->preset, '-tune', $self->tune, '-crf', 25, 
+           '-profile:v', $self->profile, '-preset', $self->preset, '-tune', $self->tune, '-crf', $self->crf,
            '-map', $self->audio_id, '-c:a', 'libfdk_aac', '-b:a', '128K', 
            '-vf', $self->filter, 
            $self->output; 
