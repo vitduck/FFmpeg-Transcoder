@@ -6,44 +6,43 @@ use warnings FATAL => 'all';
 
 # cpan
 use Moose::Role;  
+use MooseX::Types; 
 use namespace::autoclean; 
 
 # features
-use experimental qw(signatures); 
+use experimental qw/signatures/; 
 
 # Moose attributes 
 has 'profile', ( 
-    is       => 'ro', 
-    isa      => 'Str', 
+    is       => 'rw', 
+    isa      => enum([ qw/baseline main high high10 high422 high44]/ ]), 
     lazy     => 1, 
-    init_arg => undef, 
 
     default  => 'main', 
 ); 
 
 has 'preset', ( 
-    is       => 'ro',
-    isa      => 'Str', 
+    is       => 'rw',
+    isa      => enum([ qw/ultrafast superfast veryfast faster fast 
+                          medium slow slower veryslow placebo/ ]), 
     lazy     => 1, 
-    init_arg => undef, 
-
+    
     default  => 'fast', 
 ); 
 
 has 'tune', ( 
-    is       => 'ro', 
-    isa      => 'Str', 
+    is       => 'rw', 
+    isa      => enum([ qw/film animation grain 
+                          stillimage psnr ssim/ ]), 
     lazy     => 1, 
-    init_arg => undef, 
 
     default  => 'film', 
 ); 
 
 has 'crf', ( 
-    is       => 'ro', 
+    is       => 'rw', 
     isa      => 'Int', 
     lazy     => 1, 
-    init_arg => undef, 
 
     default  => '25', 
 ); 
