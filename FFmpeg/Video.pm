@@ -1,16 +1,15 @@
 package FFmpeg::Video; 
 
-# pragma
-use autodie; 
-use warnings FATAL => 'all'; 
-
 # cpan
 use Moose::Role;  
 use namespace::autoclean; 
 
-# features
+# pragma
+use autodie; 
+use warnings FATAL => 'all'; 
 use experimental qw(signatures); 
 
+# Moose attributes 
 has 'video_id', ( 
     is       => 'ro', 
     isa      => 'Str', 
@@ -18,7 +17,7 @@ has 'video_id', (
     init_arg => undef, 
 
     default  => sub ( $self ) { 
-        return (keys $self->video->%*)[0]; 
+        (keys $self->video->%*)[0]; 
     },  
 );   
 
@@ -29,9 +28,9 @@ has 'width', (
     init_arg => undef, 
 
     default => sub ( $self ) { 
-        my $id = $self->video_id;  
-
-        return $self->video->{$id}->{width}; 
+        $self->video
+             ->{$self->video_id}
+             ->{width}; 
     },   
 ); 
 
@@ -42,10 +41,10 @@ has 'height', (
     init_arg => undef, 
 
     default => sub ( $self ) { 
-        my $id = $self->video_id;  
-
-        return $self->video->{$id}->{height}; 
-    },   
+        $self->video
+             ->{$self->video_id}
+             ->{height}; 
+    }
 ); 
 
 1;  

@@ -1,14 +1,12 @@
 package FFmpeg::Audio; 
 
-# pragma
-use autodie; 
-use warnings FATAL => 'all'; 
-
 # cpan
 use Moose::Role;  
 use namespace::autoclean; 
 
-# features
+# pragma
+use autodie; 
+use warnings FATAL => 'all'; 
 use experimental qw(signatures); 
 
 requires 'select_stream'; 
@@ -20,8 +18,8 @@ has 'audio_id', (
     init_arg => undef, 
 
     default  => sub ( $self ) { 
-        return $self->select_stream('Audio', $self->audio); 
-    },  
+        $self->select_stream('Audio', $self->audio); 
+    } 
 );   
 
 1;  

@@ -10,7 +10,7 @@ use namespace::autoclean;
 # pragma
 use autodie; 
 use warnings FATAL => 'all'; 
-use experimental qw(signatures); 
+use experimental qw/signatures/; 
 
 # Moose roles 
 with 'FFmpeg::FFprobe', 
@@ -33,7 +33,7 @@ has 'output', (
     init_arg => undef, 
     
     default  => sub ( $self ) { 
-        return my $output = basename($self->input) =~ s/(.*)\..+?$/$1.mkv/r; 
+        my $output = basename($self->input) =~ s/(.*)\..+?$/$1.mkv/r 
     },  
 ); 
 
@@ -51,7 +51,7 @@ has 'scaled_width', (
 
     # Error: not divisible by 2 (!?)
     default  => sub ( $self ) { 
-        return 16 * int($self->scaled_height * $self->width / $self->height / 16);   
+        16 * int($self->scaled_height * $self->width / $self->height / 16) 
     },  
 ); 
 
@@ -75,26 +75,6 @@ has 'max_font_size',  (
     default  => 36, 
 ); 
 
-has 'x264', ( 
-    is       => 'ro', 
-    isa      => 'Str', 
-    lazy     => 1, 
-    init_arg => undef, 
-
-    default  => sub ( $self ) { 
-        return "-c:v libx264 -profile:v ${\$self->profile} -preset ${\$self->preset} -tune ${\$self->tune} -crf ${\$self->crf}"; 
-    }, 
-); 
-
-has 'faac', ( 
-    is       => 'ro', 
-    isa      => 'Str', 
-    lazy     => 1, 
-    init_arg => undef, 
-
-    default  => '-c:a libfdk_aac -b:a 128K'
-); 
-
 has 'filter', ( 
     is       => 'ro', 
     isa      => 'Str', 
@@ -104,7 +84,10 @@ has 'filter', (
     default  => sub ( $self ) { 
         my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
         my $ass_filter   = "ass=${\$self->ass}"; 
-        return $self->has_subtitle ? join(',', $scale_filter, $ass_filter) : $scale_filter; 
+        
+        $self->has_subtitle ? 
+        join(',', $scale_filter, $ass_filter) : 
+        $scale_filter 
     } 
 ); 
 
@@ -153,26 +136,26 @@ sub modify_sub ( $self ) {
 } 
 
 sub transcode ( $self ) { 
-    my $opts = "-stats -y -threads 0"; 
-    my $video_opt  = "-map ${\$self->video_id} ${\$self->x264}"; 
-    my $audio_opt  = "-map ${\$self->audio_id} ${\$self->faac}";  
-    my $filter_opt = "-vf ${\$self->filter}"; 
-
-    system "ffmpeg $opts -i ${\$self->input} $video_opt $audio_opt $filter_opt ${\$self->output}"; 
-}
-
-sub clean ( $self ) { 
-    if ( $self->has_subtitle ) { 
-        unlink $self->ass; 
-    }
+    system 'ffmpeg', 
+           '-stats', '-y', '-threads', 0, 
+           '-i', $self->input,  
+           '-map', $self->video_id, '-c:v', 'libx264', 
+           '-profile:v', $self->profile, '-preset', $self->preset, '-tune', $self->tune, '-crf', 25, 
+           '-map', $self->audio_id, '-c:a', 'libfdk_aac', '-b:a', '128K', 
+           '-vf', $self->filter, 
+           $self->output; 
 } 
+
 
 sub BUILD ( $self, @args ) { 
     $self->ffprobe; 
-    $self->video_id; 
-    $self->audio_id; 
-    $self->sub_id; 
+    # parse file info with ffprobe
+    for ( qw/video_id audio_id sub_id/ ) { 
+        $self->$_ 
+    }
 
+    # extract|convert subtitle
+    # replace font_name and size
     if ( $self->has_subtitle ) { 
         $self->extract_sub; 
         $self->modify_sub; 
