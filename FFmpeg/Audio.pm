@@ -17,6 +17,8 @@ has 'audio_id', (
     lazy     => 1, 
 
     default  => sub ( $self ) { 
+        keys $self->audio->%* == 1 ? 
+        (keys $self->video->%*)[0] :
         $self->select_stream('Audio', $self->audio); 
     } 
 );   

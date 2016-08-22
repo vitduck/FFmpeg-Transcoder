@@ -1,4 +1,4 @@
-package FFmpeg::Transcode; 
+package FFmpeg::Transcoder; 
 
 # core 
 use File::Basename;
