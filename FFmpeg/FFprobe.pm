@@ -1,22 +1,23 @@
 package FFmpeg::FFprobe; 
 
-# cpan
 use Moose::Role; 
-use namespace::autoclean; 
+use MooseX::Types::Moose qw( HashRef ); 
 
 # pragma
 use autodie; 
-use warnings FATAL => 'all'; 
-use experimental qw(signatures); 
+use strictures 2; 
+use namespace::autoclean; 
+use experimental qw( signatures smartmatch ); 
 
 has 'ffprobe', ( 
     is       => 'ro', 
+    isa      => HashRef, 
     traits   => ['Hash'], 
     lazy     => 1, 
     init_arg => undef, 
 
     default  => sub ( $self ) { 
-        my $ffprobe = {}; 
+        my $ffprobe = { }; 
 
         open my $pipe, "-|", "ffprobe ${\$self->input} 2>&1"; 
         while ( <$pipe> ) {  
@@ -41,29 +42,10 @@ has 'ffprobe', (
         return $ffprobe; 
     },  
 
-    # currying delegation 
-    handles => { 
-        # accessor 
-        ( map { $_ => [ get => $_ ] } qw/video audio subtitle/ ), 
-
-        # predicate 
-        ( map { 'has_'.$_ => [ exists => $_ ] } qw/video audio subtitle/ ), 
-    },  
+    handles   => { 
+        probe        => 'get', 
+        has_subtitle => [ exists => 'subtitle' ]
+    }
 ); 
-
-sub select_stream ( $self, $stream, $table ) {  
-    if ( not $table->%* ) { return }  
-
-    while (1) { 
-        print "\n$stream:\n"; 
-        for my $id ( sort keys $table->%* ) { 
-            print "[$id] $table->{$id}\n"; 
-        } 
-        print "-> "; 
-        chomp ( my $choice = <STDIN> ); 
-        
-        if ( exists $table->{$choice} ) { return $choice }  
-    } 
-} 
 
 1; 

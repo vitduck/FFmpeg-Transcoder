@@ -1,26 +1,40 @@
 package FFmpeg::Audio; 
 
-# cpan
 use Moose::Role;  
-use namespace::autoclean; 
+use MooseX::Types::Moose qw( Str HashRef ); 
 
-# pragma
-use autodie; 
-use warnings FATAL => 'all'; 
+use strictures 2; 
+use namespace::autoclean; 
 use experimental qw(signatures); 
 
-requires 'select_stream'; 
+requires 'select_id'; 
+
+has 'audio', ( 
+    is       => 'ro', 
+    isa      => HashRef, 
+    traits   => [ 'Hash' ], 
+    lazy     => 1, 
+    init_arg => undef, 
+
+    default  => sub ( $self ) { 
+        return $self->probe( 'audio' )  
+    },  
+
+    handles  => { 
+        get_audio     => 'get', 
+        get_audio_ids => 'keys' 
+    }
+);   
 
 has 'audio_id', ( 
     is       => 'ro', 
-    isa      => 'Str', 
+    isa      => Str, 
     lazy     => 1, 
-
+    init_arg => undef, 
+    
     default  => sub ( $self ) { 
-        keys $self->audio->%* == 1 ? 
-        (keys $self->video->%*)[0] :
-        $self->select_stream('Audio', $self->audio); 
-    } 
-);   
+        return $self->select_id( Audio => $self->audio )
+    }
+); 
 
 1;  

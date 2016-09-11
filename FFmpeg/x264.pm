@@ -1,44 +1,59 @@
 package FFmpeg::x264; 
 
-# cpan
 use Moose::Role;  
-use MooseX::Types; 
+use MooseX::Types::Moose qw( Str );  
 use namespace::autoclean; 
 
-# pragma
-use autodie; 
-use warnings FATAL => 'all'; 
-use experimental qw/signatures/; 
+use strictures 2; 
+use namespace::autoclean; 
+use experimental qw( signatures ); 
 
-# Moose attributes 
+use FFmpeg::Types qw( x264_profile x264_preset x264_tune ); 
+use MooseX::Types::Moose qw( Int ); 
+
 has 'profile', ( 
     is       => 'ro', 
-    isa      => enum([ qw/baseline main high high10 high422 high44]/ ]), 
+    isa      => x264_profile, 
     lazy     => 1, 
     default  => 'main', 
 ); 
 
 has 'preset', ( 
     is       => 'ro',
-    isa      => enum([ qw/ultrafast superfast veryfast faster fast 
-                          medium slow slower veryslow placebo/ ]), 
+    isa      => x264_preset, 
     lazy     => 1, 
     default  => 'fast', 
 ); 
 
 has 'tune', ( 
     is       => 'ro', 
-    isa      => enum([ qw/film animation grain 
-                          stillimage psnr ssim/ ]), 
+    isa      => x264_tune, 
     lazy     => 1, 
     default  => 'film', 
 ); 
 
 has 'crf', ( 
     is       => 'ro', 
-    isa      => 'Int', 
+    isa      => Int, 
     lazy     => 1, 
     default  => '25', 
+); 
+
+has 'filter', ( 
+    is       => 'ro', 
+    isa      => Str, 
+    lazy     => 1, 
+    init_arg => undef, 
+
+    default  => sub ( $self ) { 
+        my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
+        my $ass_filter   = "ass=${\$self->ass}"; 
+        
+        return 
+            $self->has_subtitle ? 
+            join(',', $scale_filter, $ass_filter) : 
+            $scale_filter 
+    } 
 ); 
 
 1;  
