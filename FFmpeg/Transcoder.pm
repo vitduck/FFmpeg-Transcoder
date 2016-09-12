@@ -16,6 +16,10 @@ has 'input', (
     is       => 'ro', 
     isa      => Str,   
     required => 1, 
+
+    trigger  => sub ( $self, @args ) { 
+        printf "\n-> File: %s\n", $self->input 
+    } 
 ); 
 
 has 'output', ( 
@@ -43,11 +47,15 @@ sub transcode ( $self ) {
 } 
 
 sub BUILD ( $self, @args ) { 
-    if ( $self->has_subtitle ) {  
-        $self->extract_sub 
+    $self->video_id;  
+    $self->audio_id; 
+    if ( $self->has_subtitle ) { 
+        $self->subtitle_id; 
+        $self->extract_sub; 
+        $self->modify_sub
     }
 } 
 
 __PACKAGE__->meta->make_immutable;
 
-1; 
+1

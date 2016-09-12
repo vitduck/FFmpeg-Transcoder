@@ -12,7 +12,7 @@ sub select_id ( $self, $header, $stream ) {
     # single id 
     return shift @ids if @ids == 1; 
     
-    printf "-> %s\n", $header;  
+    printf "-> %s:\n", $header;  
     while (1) { 
         # list of stream id 
         for my $id ( @ids ) { 
