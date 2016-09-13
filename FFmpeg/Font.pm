@@ -1,10 +1,12 @@
 package FFmpeg::Font; 
 
+use strict; 
+use warnings FATAL => 'all';  
+use namespace::autoclean; 
+
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str Int ); 
 
-use strictures 2; 
-use namespace::autoclean; 
 
 has 'font_name', ( 
     is       => 'ro', 

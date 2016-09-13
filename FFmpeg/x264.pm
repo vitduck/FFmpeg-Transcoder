@@ -1,15 +1,14 @@
 package FFmpeg::x264; 
 
+use strict; 
+use warnings FATAL => 'all'; 
+use namespace::autoclean; 
+
 use Moose::Role;  
-use MooseX::Types::Moose qw( Str );  
-use namespace::autoclean; 
-
-use strictures 2; 
-use namespace::autoclean; 
-use experimental qw( signatures ); 
-
+use MooseX::Types::Moose qw( Str Int );  
 use FFmpeg::Types qw( x264_profile x264_preset x264_tune ); 
-use MooseX::Types::Moose qw( Int ); 
+
+use experimental qw( signatures ); 
 
 has 'profile', ( 
     is       => 'ro', 

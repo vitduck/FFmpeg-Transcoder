@@ -1,12 +1,13 @@
 package FFmpeg::FFprobe; 
 
+use autodie; 
+use strict; 
+use warnings FATAL => 'all'; 
+use namespace::autoclean; 
+
 use Moose::Role; 
 use MooseX::Types::Moose qw( HashRef ); 
 
-# pragma
-use autodie; 
-use strictures 2; 
-use namespace::autoclean; 
 use experimental qw( signatures smartmatch ); 
 
 has 'ffprobe', ( 

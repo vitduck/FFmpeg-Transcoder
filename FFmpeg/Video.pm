@@ -1,10 +1,12 @@
 package FFmpeg::Video; 
 
+use strict; 
+use warnings FATAL => 'all'; 
+use namespace::autoclean; 
+
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str Int HashRef ); 
 
-use strictures 2; 
-use namespace::autoclean; 
 use experimental qw(signatures); 
 
 has 'video', ( 

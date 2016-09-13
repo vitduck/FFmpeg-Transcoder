@@ -1,9 +1,11 @@
 package FFmpeg::Select; 
 
+use strict; 
+use warnings FATAL => 'all';
+use namespace::autoclean; 
+
 use Moose::Role; 
 
-use strictures 2; 
-use namespace::autoclean; 
 use experimental qw( signatures smartmatch ); 
 
 sub select_id ( $self, $header, $stream ) {  

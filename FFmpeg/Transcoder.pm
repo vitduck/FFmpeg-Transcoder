@@ -1,11 +1,13 @@
 package FFmpeg::Transcoder; 
 
+use strict; 
+use warnings FATAL => 'all'; 
+use namespace::autoclean; 
+
 use Moose; 
 use MooseX::Types::Moose qw( Str Int ); 
 use File::Basename;
 
-use strictures 2; 
-use namespace::autoclean; 
 use experimental qw/signatures/; 
 
 with qw( FFmpeg::FFprobe FFmpeg::Select ),  
