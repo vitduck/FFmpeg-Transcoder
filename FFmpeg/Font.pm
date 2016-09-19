@@ -10,7 +10,8 @@ use MooseX::Types::Moose qw( Str Int );
 has 'font_name', ( 
     is       => 'ro', 
     isa      => Str, 
-    required => 1, 
+    lazy     => 1, 
+    default  => 'PF Armonia'
 ); 
 
 has 'min_font_size', ( 

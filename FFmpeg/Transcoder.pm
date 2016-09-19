@@ -24,6 +24,13 @@ has 'input', (
     } 
 ); 
 
+has 'help', ( 
+    is       => 'ro', 
+    isa      => Int, 
+    lazy     => 1, 
+    default  => 0 
+); 
+
 has 'output', ( 
     is       => 'ro', 
     isa      => Str, 

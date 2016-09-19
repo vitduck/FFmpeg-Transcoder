@@ -103,7 +103,6 @@ sub modify_sub ( $self ) {
     unlink ${\$self->ass}.$^I; 
 } 
 
-
 sub clean_sub ( $self ) { 
     if ( $self->has_subtitle ) { 
         unlink $self->ass; 
