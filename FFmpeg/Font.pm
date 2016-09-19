@@ -7,7 +7,6 @@ use namespace::autoclean;
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str Int ); 
 
-
 has 'font_name', ( 
     is       => 'ro', 
     isa      => Str, 

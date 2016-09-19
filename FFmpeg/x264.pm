@@ -48,10 +48,11 @@ has 'filter', (
         my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
         my $ass_filter   = "ass=${\$self->ass}"; 
         
-        return 
+        return ( 
             $self->has_subtitle ? 
             join(',', $scale_filter, $ass_filter) : 
             $scale_filter 
+        )
     } 
 ); 
 

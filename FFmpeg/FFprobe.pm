@@ -38,6 +38,7 @@ has 'ffprobe', (
                 $ffprobe->{lc($stream)}{$id} = $lang; 
             } 
         }            
+
         close $pipe; 
 
         return $ffprobe; 

@@ -53,29 +53,6 @@ has 'video_size', (
     }
 ); 
 
-has 'width', ( 
-    is       => 'ro', 
-    isa      => Int, 
-    lazy     => 1, 
-    init_arg => undef, 
-
-    default  => sub ( $self ) { 
-        return $self->get_video_width
-    } 
-); 
-
-has 'height', ( 
-    is       => 'ro', 
-    isa      => Int, 
-    lazy     => 1, 
-    init_arg => undef, 
-
-    default  => sub ( $self ) { 
-        return $self->get_video_height
-    } 
-); 
-
-
 has 'scaled_height', ( 
     is       => 'ro', 
     isa      => Int, 
@@ -91,7 +68,10 @@ has 'scaled_width', (
 
     # Error: not divisible by 2 (!?)
     default  => sub ( $self ) { 
-        return 16 * int($self->scaled_height * $self->width / $self->height / 16) 
+        my $width  = $self->get_video_width; 
+        my $height = $self->get_video_height; 
+
+        return 16 * int( $self->scaled_height * $width / $height / 16 ) 
     },  
 ); 
 

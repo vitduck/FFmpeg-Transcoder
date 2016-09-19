@@ -51,6 +51,7 @@ sub transcode ( $self ) {
 sub BUILD ( $self, @args ) { 
     $self->video_id;  
     $self->audio_id; 
+
     if ( $self->has_subtitle ) { 
         $self->subtitle_id; 
         $self->extract_sub; 

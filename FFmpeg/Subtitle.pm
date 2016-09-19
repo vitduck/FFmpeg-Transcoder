@@ -80,7 +80,7 @@ sub modify_sub ( $self ) {
             my $properties = $+{properties}; 
 
             # fontsize 
-            my $font_size  = int($self->scaled_height * $+{font_size} / $self->height);  
+            my $font_size  = int($self->scaled_height * $+{font_size} / $self->get_video_height);  
             $font_size = 
                 $font_size < $self->min_font_size ? 
                 $self->min_font_size : 
