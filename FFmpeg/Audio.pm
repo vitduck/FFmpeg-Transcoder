@@ -2,11 +2,11 @@ package FFmpeg::Audio;
 
 use strict; 
 use warnings FATAL => 'all'; 
-use namespace::autoclean; 
 
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str HashRef ); 
 
+use namespace::autoclean; 
 use experimental qw(signatures); 
 
 requires 'select_id'; 

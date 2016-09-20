@@ -2,11 +2,11 @@ package FFmpeg::Types;
 
 use strict; 
 use warnings FATAL => 'all'; 
-use namespace::autoclean; 
 
 use MooseX::Types::Moose qw( Str Int );  
 use MooseX::Types -declare => [ qw( x264_profile x264_preset x264_tune ) ];   
 
+use namespace::autoclean; 
 use experimental qw( smartmatch ); 
 
 my @profile = qw( baseline main high high10 high422 high44 ); 

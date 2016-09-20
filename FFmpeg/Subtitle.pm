@@ -2,12 +2,12 @@ package FFmpeg::Subtitle;
 
 use strict; 
 use warnings FATAL => 'all'; 
-use namespace::autoclean; 
 
 use Moose::Role;  
 use MooseX::Types::Moose qw( Undef Str HashRef ); 
 use File::Basename; 
 
+use namespace::autoclean; 
 use experimental qw(signatures); 
 
 requires 'select_id'; 
