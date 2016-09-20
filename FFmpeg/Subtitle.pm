@@ -18,14 +18,8 @@ has 'subtitle', (
     traits   => [ 'Hash' ], 
     lazy     => 1, 
     init_arg => undef, 
-
-    default  => sub ( $self ) { 
-        return $self->probe( 'subtitle' )  
-    },  
-
-    handles  => { 
-        get_subtitle_ids => 'keys' 
-    }
+    builder  => '_build_subtitle', 
+    handles  => { get_subtitle_ids => 'keys' }
 );   
 
 has 'subtitle_id', ( 
@@ -33,10 +27,7 @@ has 'subtitle_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-
-    default  => sub ( $self ) { 
-        return $self->select_id( Subtitle => $self->subtitle )
-    }
+    builder   => '_build_subtitle_id', 
 );   
 
 has 'ass', ( 
@@ -44,10 +35,7 @@ has 'ass', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-
-    default  => sub ( $self ) { 
-        return basename($self->input) =~ s/(.*)\..+?$/$1.ass/r;  
-    },  
+    builder  => '_build_ass', 
 ); 
 
 sub extract_sub ( $self ) { 
@@ -59,13 +47,23 @@ sub extract_sub ( $self ) {
         $self->ass; 
 } 
 
+sub _build_subtitle ( $self ) { 
+    return $self->probe( 'subtitle' ) 
+}
+
+sub _build_subtitle_id ( $self ) { 
+    return $self->select_id( Subtitle => $self->subtitle) 
+}
+
+sub _build_ass ( $self ) { 
+    return basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r 
+} 
+
 sub modify_sub ( $self ) { 
-    if ( not $self->has_subtitle ) { return } 
+    return if not $self->has_subtitle; 
     
     # inplace editting 
     local ( $^I, @ARGV ) = ( '~', $self->ass ); 
-
-    # parse ass file 
     while ( <<>> ) { 
         # removign annoying ^M 
         s/\r//g; 
@@ -104,9 +102,7 @@ sub modify_sub ( $self ) {
 } 
 
 sub clean_sub ( $self ) { 
-    if ( $self->has_subtitle ) { 
-        unlink $self->ass; 
-    }
+    unlink $self->ass if $self->has_subtitle;  
 } 
 
 1;  

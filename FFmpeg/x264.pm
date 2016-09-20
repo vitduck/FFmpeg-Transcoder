@@ -43,17 +43,18 @@ has 'filter', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-
-    default  => sub ( $self ) { 
-        my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
-        my $ass_filter   = "ass=${\$self->ass}"; 
-        
-        return ( 
-            $self->has_subtitle ? 
-            join(',', $scale_filter, $ass_filter) : 
-            $scale_filter 
-        )
-    } 
+    builder  => '_build_filter', 
 ); 
+
+sub _build_filter ( $self ) { 
+    my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
+    my $ass_filter   = "ass=${\$self->ass}"; 
+
+    return ( 
+        $self->has_subtitle ? 
+        join(',', $scale_filter, $ass_filter) : 
+        $scale_filter 
+    )
+} 
 
 1;  

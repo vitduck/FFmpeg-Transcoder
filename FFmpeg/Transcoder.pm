@@ -18,10 +18,7 @@ has 'input', (
     is       => 'ro', 
     isa      => Str,   
     required => 1, 
-
-    trigger  => sub ( $self, @args ) { 
-        printf "\n-> File: %s\n", $self->input 
-    } 
+    trigger  => \&_print_input
 ); 
 
 has 'help', ( 
@@ -36,11 +33,19 @@ has 'output', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-    
-    default  => sub ( $self ) { 
-        return basename($self->input) =~ s/(.*)\..+?$/$1.mkv/r 
-    },  
+    builder  => '_build_output' 
 ); 
+
+sub BUILD ( $self, @args ) { 
+    $self->video_id;  
+    $self->audio_id; 
+
+    if ( $self->has_subtitle ) { 
+        $self->subtitle_id; 
+        $self->extract_sub; 
+        $self->modify_sub
+    }
+} 
 
 sub transcode ( $self ) { 
     system 
@@ -55,16 +60,13 @@ sub transcode ( $self ) {
         $self->output; 
 } 
 
-sub BUILD ( $self, @args ) { 
-    $self->video_id;  
-    $self->audio_id; 
-
-    if ( $self->has_subtitle ) { 
-        $self->subtitle_id; 
-        $self->extract_sub; 
-        $self->modify_sub
-    }
+sub _print_input ( $self, @args ) { 
+    printf "\n-> File: %s\n", $self->input 
 } 
+
+sub _build_output ( $self ) { 
+    return basename( $self->input ) =~ s/(.*)\..+?$/$1.mkv/r 
+}  
 
 __PACKAGE__->meta->make_immutable;
 

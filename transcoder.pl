@@ -28,27 +28,27 @@ Print the help message and exit.
 
 =item B<-s, --scaled_height> 
 
-Height of transcoded file 
+Rescaled height ( default: 304 ) 
 
 =item B<-f, --font_name> 
 
-Font name for hardcoded subtititle
+Subtitle's font
 
 =item B<-t, --tune> 
 
-x264 tune ( film, animation, etc )
+x264 tune ( default: film  )
 
 =item B<-c, --crt>
 
-x264 crt 
+x264 crt ( default: 25 ) 
 
 =item B<--profile>
 
-x264 profile ( baseline, main, hight, etc ) 
+x264 profile ( default: main ) 
 
 =item B<--preset>
 
-x264 preset ( fast, medium, slow, etc )
+x264 preset ( default: fast )
 
 =back 
 
