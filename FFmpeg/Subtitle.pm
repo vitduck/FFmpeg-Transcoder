@@ -1,20 +1,17 @@
 package FFmpeg::Subtitle; 
 
-use strict; 
-use warnings FATAL => 'all'; 
-
-use Moose::Role;  
-use MooseX::Types::Moose qw( Undef Str HashRef ); 
 use File::Basename; 
-
+use Moose::Role;  
 use namespace::autoclean; 
-use experimental qw(signatures); 
+use experimental qw/signatures/; 
 
-requires 'select_id'; 
+with qw/FFmpeg::Font/; 
+
+requires qw/select_id/;  
 
 has 'subtitle', ( 
     is       => 'ro', 
-    isa      => HashRef, 
+    isa      => 'HashRef', 
     traits   => [ 'Hash' ], 
     lazy     => 1, 
     init_arg => undef, 
@@ -24,7 +21,7 @@ has 'subtitle', (
 
 has 'subtitle_id', ( 
     is        => 'ro', 
-    isa       => Str, 
+    isa       => 'Str', 
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_subtitle_id', 
@@ -32,7 +29,7 @@ has 'subtitle_id', (
 
 has 'ass', ( 
     is       => 'ro', 
-    isa      => Str, 
+    isa      => 'Str', 
     lazy     => 1, 
     init_arg => undef, 
     builder  => '_build_ass', 
@@ -45,18 +42,6 @@ sub extract_sub ( $self ) {
         '-i', $self->input, 
         '-map', $self->subtitle_id, 
         $self->ass; 
-} 
-
-sub _build_subtitle ( $self ) { 
-    return $self->probe( 'subtitle' ) 
-}
-
-sub _build_subtitle_id ( $self ) { 
-    return $self->select_id( Subtitle => $self->subtitle) 
-}
-
-sub _build_ass ( $self ) { 
-    return basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r 
 } 
 
 sub modify_sub ( $self ) { 
@@ -103,6 +88,18 @@ sub modify_sub ( $self ) {
 
 sub clean_sub ( $self ) { 
     unlink $self->ass if $self->has_subtitle;  
+} 
+
+sub _build_subtitle ( $self ) { 
+    return $self->probe( 'subtitle' ) 
+}
+
+sub _build_subtitle_id ( $self ) { 
+    return $self->select_id( Subtitle => $self->subtitle) 
+}
+
+sub _build_ass ( $self ) { 
+    return basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r 
 } 
 
 1;  

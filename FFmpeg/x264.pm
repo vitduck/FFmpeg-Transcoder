@@ -1,46 +1,43 @@
 package FFmpeg::x264; 
 
-use strict; 
-use warnings FATAL => 'all'; 
-
 use Moose::Role;  
-use MooseX::Types::Moose qw( Str Int );  
-use FFmpeg::Types qw( x264_profile x264_preset x264_tune ); 
-
+use FFmpeg::Types qw/x264_profile x264_preset x264_tune/;  
 use namespace::autoclean; 
-use experimental qw( signatures ); 
+use experimental  qw/signatures/; 
+
+with qw/FFmpeg::Video/; 
 
 has 'profile', ( 
     is       => 'ro', 
-    isa      => x264_profile, 
+    isa      => 'x264_profile', 
     lazy     => 1, 
     default  => 'main', 
 ); 
 
 has 'preset', ( 
     is       => 'ro',
-    isa      => x264_preset, 
+    isa      => 'x264_preset', 
     lazy     => 1, 
     default  => 'fast', 
 ); 
 
 has 'tune', ( 
     is       => 'ro', 
-    isa      => x264_tune, 
+    isa      => 'x264_tune', 
     lazy     => 1, 
     default  => 'film', 
 ); 
 
 has 'crf', ( 
     is       => 'ro', 
-    isa      => Int, 
+    isa      => 'Int', 
     lazy     => 1, 
     default  => '25', 
 ); 
 
 has 'filter', ( 
     is       => 'ro', 
-    isa      => Str, 
+    isa      => 'Str', 
     lazy     => 1, 
     init_arg => undef, 
     builder  => '_build_filter', 

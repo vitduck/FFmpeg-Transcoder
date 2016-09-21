@@ -1,42 +1,35 @@
 package FFmpeg::Transcoder; 
 
-use strict; 
-use warnings FATAL => 'all'; 
-
-use Moose; 
-use MooseX::Types::Moose qw( Str Int ); 
 use File::Basename;
-
+use Moose; 
 use namespace::autoclean; 
 use experimental qw/signatures/; 
 
-with qw( FFmpeg::FFprobe FFmpeg::Select ),  
-     qw( FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle FFmpeg::Font ),  
-     qw( FFmpeg::x264 );  
+with qw/FFmpeg::FFprobe FFmpeg::x264 FFmpeg::Audio FFmpeg::Subtitle/; 
 
 has 'input', (
     is       => 'ro', 
-    isa      => Str,   
+    isa      => 'Str',   
     required => 1, 
     trigger  => \&_print_input
 ); 
 
 has 'help', ( 
     is       => 'ro', 
-    isa      => Int, 
+    isa      => 'Int', 
     lazy     => 1, 
     default  => 0 
 ); 
 
 has 'output', ( 
     is       => 'ro', 
-    isa      => Str, 
+    isa      => 'Str', 
     lazy     => 1, 
     init_arg => undef, 
     builder  => '_build_output' 
 ); 
 
-sub BUILD ( $self, @args ) { 
+sub BUILD ( $self, @ ) { 
     $self->video_id;  
     $self->audio_id; 
 
@@ -60,7 +53,7 @@ sub transcode ( $self ) {
         $self->output; 
 } 
 
-sub _print_input ( $self, @args ) { 
+sub _print_input ( $self, @ ) { 
     printf "\n-> File: %s\n", $self->input 
 } 
 

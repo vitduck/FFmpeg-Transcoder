@@ -8,7 +8,7 @@ use Pod::Usage;
 use FFmpeg::Transcoder; 
 
 # POD 
-my @usages = qw( NAME SYSNOPSIS OPTIONS );  
+my @usages = qw/NAME SYSNOPSIS OPTIONS/;  
 
 =head1 NAME 
 

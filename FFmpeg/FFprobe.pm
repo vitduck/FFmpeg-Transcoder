@@ -1,18 +1,13 @@
 package FFmpeg::FFprobe; 
 
 use autodie; 
-use strict; 
-use warnings FATAL => 'all'; 
-
 use Moose::Role; 
-use MooseX::Types::Moose qw( HashRef ); 
-
 use namespace::autoclean; 
-use experimental qw( signatures smartmatch ); 
+use experimental qw/signatures smartmatch/;  
 
 has 'ffprobe', ( 
     is        => 'ro', 
-    isa       => HashRef, 
+    isa       => 'HashRef', 
     traits    => ['Hash'], 
     lazy      => 1, 
     init_arg  => undef, 
@@ -22,6 +17,27 @@ has 'ffprobe', (
         has_subtitle => [ exists => 'subtitle' ]
     }
 ); 
+
+sub select_id ( $self, $header, $stream ) {  
+    my @ids = sort keys $stream->%*; 
+
+    # single id 
+    return shift @ids if @ids == 1; 
+    
+    printf "-> %s:\n", $header;  
+    while (1) { 
+        # list of stream id 
+        for my $id ( @ids ) { 
+            printf "[%s]\t%s\n", $id, $stream->{$id}
+        } 
+
+        # prompt user for selection  
+        print "-> "; 
+        chomp ( my $choice = <STDIN> ); 
+       
+        return $choice if $choice ~~ @ids 
+    } 
+} 
 
 sub _parse_ffprobe ( $self ) { 
     my %ffprobe = ();  

@@ -1,19 +1,14 @@
 package FFmpeg::Audio; 
 
-use strict; 
-use warnings FATAL => 'all'; 
-
 use Moose::Role;  
-use MooseX::Types::Moose qw( Str HashRef ); 
-
 use namespace::autoclean; 
-use experimental qw(signatures); 
+use experimental qw/signatures/;   
 
-requires 'select_id'; 
+requires qw/select_id/;  
 
 has 'audio', ( 
     is        => 'ro', 
-    isa       => HashRef, 
+    isa       => 'HashRef', 
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
@@ -26,7 +21,7 @@ has 'audio', (
 
 has 'audio_id', ( 
     is        => 'ro', 
-    isa       => Str, 
+    isa       => 'Str', 
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_audio_id'
@@ -38,6 +33,6 @@ sub _build_audio ( $self ) {
 
 sub _build_audio_id ( $self ) { 
     return $self->select_id( Audio => $self->audio ) 
-}
+} 
 
 1
