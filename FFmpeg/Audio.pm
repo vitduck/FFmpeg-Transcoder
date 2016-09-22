@@ -1,12 +1,13 @@
 package FFmpeg::Audio; 
 
 use Moose::Role;  
+use MooseX::Types::Moose qw( Str HashRef ); 
 use namespace::autoclean; 
 use experimental qw( signatures );  
 
 has 'audio', ( 
     is        => 'ro', 
-    isa       => 'HashRef', 
+    isa       => HashRef, 
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
@@ -19,7 +20,7 @@ has 'audio', (
 
 has 'audio_id', ( 
     is        => 'ro', 
-    isa       => 'Str', 
+    isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_audio_id'

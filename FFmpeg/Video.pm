@@ -1,12 +1,13 @@
 package FFmpeg::Video; 
 
 use Moose::Role;  
+use MooseX::Types::Moose qw( Str Int HashRef ); 
 use namespace::autoclean; 
 use experimental qw( signatures ); 
 
 has 'video', ( 
     is        => 'ro', 
-    isa       => 'HashRef', 
+    isa       => HashRef, 
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     builder   => '_build_video',
@@ -18,7 +19,7 @@ has 'video', (
 
 has 'video_id', ( 
     is        => 'ro', 
-    isa       => 'Str', 
+    isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_video_id'
@@ -26,7 +27,7 @@ has 'video_id', (
 
 has 'video_size', ( 
     is        => 'ro', 
-    isa       => 'HashRef',  
+    isa       => HashRef,  
     traits    => [ 'Hash' ],  
     lazy      => 1, 
     init_arg  => undef, 
@@ -39,14 +40,14 @@ has 'video_size', (
 
 has 'scaled_height', ( 
     is        => 'ro', 
-    isa       => 'Int', 
+    isa       => Int, 
     lazy      => 1, 
     default   => 304, 
 ); 
 
 has 'scaled_width', ( 
     is        => 'ro', 
-    isa       => 'Int',  
+    isa       => Int,  
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_scaled_width'

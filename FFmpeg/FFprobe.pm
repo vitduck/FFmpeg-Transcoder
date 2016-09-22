@@ -3,12 +3,13 @@ package FFmpeg::FFprobe;
 use autodie; 
 
 use Moose::Role; 
+use MooseX::Types::Moose qw( HashRef ); 
 use namespace::autoclean; 
 use experimental qw( signatures smartmatch );  
 
 has 'ffprobe', ( 
     is        => 'ro', 
-    isa       => 'HashRef', 
+    isa       => HashRef, 
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
@@ -33,7 +34,6 @@ sub _parse_ffprobe ( $self ) {
         if ( /Stream #(\d:\d)(?:\((.+?)\))?: (?<stream>audio|subtitle)/i ) {  
             my ( $id, $lang ) = ( $1, $2); 
             my $stream         = $+{stream};  
-            # default lang 
             $lang //= 'eng'; 
             $ffprobe{lc($stream)}{$id} = $lang; 
         } 
