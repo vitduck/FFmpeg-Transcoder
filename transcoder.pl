@@ -1,14 +1,14 @@
 #!/usr/bin/env perl 
 
 use strict; 
-use warnings FATAL => 'all'; 
+use warnings; 
 
 use Getopt::Long; 
 use Pod::Usage; 
 use FFmpeg::Transcoder; 
 
 # POD 
-my @usages = qw/NAME SYSNOPSIS OPTIONS/;  
+my @usages = qw( NAME SYSNOPSIS OPTIONS );  
 
 =head1 NAME 
 

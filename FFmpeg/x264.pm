@@ -1,11 +1,17 @@
 package FFmpeg::x264; 
 
 use Moose::Role;  
-use FFmpeg::Types qw/x264_profile x264_preset x264_tune/;  
+use Moose::Util::TypeConstraints;
 use namespace::autoclean; 
-use experimental  qw/signatures/; 
+use experimental qw( signatures smartmatch ); 
 
-with qw/FFmpeg::Video/; 
+my @profile = qw( baseline main high high10 high422 high44 );  
+my @preset  = qw( ultrafast superfast veryfast faster fast medium slow slower veryslow placebo );  
+my @tune    = qw( film animation grain stillimage psnr ssim );  
+
+subtype 'x264_profile' => as Str => where { $_ ~~ @profile }; 
+subtype 'x264_preset'  => as Str => where { $_ ~~ @preset  }; 
+subtype 'x264_tune'    => as Str => where { $_ ~~ @tune    };
 
 has 'profile', ( 
     is       => 'ro', 
@@ -42,16 +48,5 @@ has 'filter', (
     init_arg => undef, 
     builder  => '_build_filter', 
 ); 
-
-sub _build_filter ( $self ) { 
-    my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
-    my $ass_filter   = "ass=${\$self->ass}"; 
-
-    return ( 
-        $self->has_subtitle ? 
-        join(',', $scale_filter, $ass_filter) : 
-        $scale_filter 
-    )
-} 
 
 1;  

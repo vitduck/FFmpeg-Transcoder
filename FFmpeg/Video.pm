@@ -2,7 +2,7 @@ package FFmpeg::Video;
 
 use Moose::Role;  
 use namespace::autoclean; 
-use experimental qw/signatures/; 
+use experimental qw( signatures ); 
 
 has 'video', ( 
     is        => 'ro', 
@@ -51,24 +51,5 @@ has 'scaled_width', (
     init_arg  => undef, 
     builder   => '_build_scaled_width'
 ); 
-
-sub _build_video ( $self ) { 
-    return $self->probe( 'video' )
-} 
-
-sub _build_video_id ( $self ) { 
-    return ( $self->get_video_ids )[0] 
-} 
-
-sub _build_video_size ( $self ) { 
-    return $self->get_video_size( $self->video_id ) 
-} 
-
-sub _build_scaled_width ( $self ) { 
-    my $width  = $self->get_video_width; 
-    my $height = $self->get_video_height; 
-
-    return 16 * int( $self->scaled_height * $width / $height / 16 ) 
-} 
 
 1;  

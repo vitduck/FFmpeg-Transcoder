@@ -2,9 +2,7 @@ package FFmpeg::Audio;
 
 use Moose::Role;  
 use namespace::autoclean; 
-use experimental qw/signatures/;   
-
-requires qw/select_id/;  
+use experimental qw( signatures );  
 
 has 'audio', ( 
     is        => 'ro', 
@@ -26,13 +24,5 @@ has 'audio_id', (
     init_arg  => undef, 
     builder   => '_build_audio_id'
 ); 
-
-sub _build_audio ( $self ) { 
-    return $self->probe( 'audio' ) 
-} 
-
-sub _build_audio_id ( $self ) { 
-    return $self->select_id( Audio => $self->audio ) 
-} 
 
 1
