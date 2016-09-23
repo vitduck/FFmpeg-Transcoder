@@ -2,6 +2,7 @@ package FFmpeg::Audio;
 
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str HashRef ); 
+
 use namespace::autoclean; 
 use experimental qw( signatures );  
 
