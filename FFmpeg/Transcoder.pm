@@ -9,6 +9,7 @@ use namespace::autoclean;
 use experimental qw( signatures smartmatch );  
 
 with qw( FFmpeg::FFprobe ); 
+with qw( FFmpeg::x264 ); 
 with qw( FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle );  
 
 has 'input', (
@@ -22,7 +23,7 @@ has 'output', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-    default  => sub {  basename( $_[0]->input ) =~ s/(.*)\..+?$/$1.mkv/r } 
+    default  => sub ( $self ) { basename( $self->input ) =~ s/(.*)\..+?$/$1.mkv/r } 
 ); 
 
 has 'ass', ( 
@@ -30,7 +31,7 @@ has 'ass', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-    default  => sub { basename( $_[0]->input ) =~ s/(.*)\..+?$/$1.ass/r }
+    default  => sub ( $self ) { basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r }
 ); 
 
 has 'help', ( 
@@ -113,18 +114,18 @@ sub modify_sub ( $self ) {
     unlink ${\$self->ass}.$^I; 
 } 
 
-sub select_id ( $self, $header, $stream ) {  
-    my @ids = sort keys $stream->%*; 
+sub select_id ( $self, $stream ) {  
+    my @ids = sort keys $self->$stream->%*; 
 
     # short-circuit
     return shift @ids if @ids == 1; 
     
-    printf "-> %s:\n", $header;  
+    printf "-> %s:\n", $stream; 
     
     while (1) { 
         # list of stream id 
         for my $id ( @ids ) { 
-            printf "[%s]\t%s\n", $id, $stream->{$id}
+            printf "[%s]\t%s\n", $id, $self->$stream->{$id}
         } 
         # prompt user for selection  
         print "-> "; 
@@ -134,6 +135,38 @@ sub select_id ( $self, $header, $stream ) {
     } 
 } 
 
+# FFmpeg::FFprobe
+sub _build_ffprobe ( $self ) { 
+    my %ffprobe = ();  
+
+    # redirect STDERR to STDOUT ? 
+    open my $pipe, "-|", "ffprobe ${\$self->input} 2>&1"; 
+
+    while ( <$pipe> ) {  
+        # video stream, width and height  
+        if ( /Stream #(\d:\d)(\(.+?\))?: Video:.+?(?<width>\d{3,})x(?<height>\d{3,})/ ) { 
+            $ffprobe{video}{$1}->@{qw/width height/} = ( $+{width}, $+{height} ); 
+        } 
+
+        # audio/subtitle stream
+        if ( /Stream #(\d:\d)(?:\((.+?)\))?: (?<stream>audio|subtitle)/i ) {  
+            my ( $id, $lang ) = ( $1, $2); 
+            my $stream         = $+{stream};  
+            
+            # set default lang 
+            #
+            $lang //= 'eng'; 
+
+            $ffprobe{lc($stream)}{$id} = $lang; 
+        } 
+    }            
+
+    close $pipe; 
+
+    return \%ffprobe; 
+} 
+
+# FFmpeg::x264
 sub _build_filter ( $self ) { 
     my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
     my $ass_filter   = "ass=${\$self->ass}"; 

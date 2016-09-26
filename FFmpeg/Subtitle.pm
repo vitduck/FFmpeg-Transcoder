@@ -8,7 +8,8 @@ use MooseX::Types::Moose qw( Str Int HashRef );
 use namespace::autoclean; 
 use experimental qw( signatures ); 
 
-requires qw( probe select_id ); 
+requires qw( ffprobe ); 
+requires qw( select_id ); 
 
 has 'subtitle', ( 
     is       => 'ro', 
@@ -16,7 +17,7 @@ has 'subtitle', (
     traits   => [ 'Hash' ], 
     lazy     => 1, 
     init_arg => undef, 
-    default  => sub { $_[0]->probe( 'subtitle' ) },  
+    default  => sub ( $self ) { $self->ffprobe->{'subtitle'} },  
     handles  => { 
         get_subtitle_ids => 'keys' 
     }
@@ -27,7 +28,7 @@ has 'subtitle_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub { $_[0]->select_id( Subtitle => $_[0]->subtitle ) }
+    default   => sub ( $self ) { $self->select_id( 'subtitle' ) }
 );   
 
 has 'font_name', ( 
