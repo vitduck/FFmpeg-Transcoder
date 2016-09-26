@@ -8,13 +8,15 @@ use MooseX::Types::Moose qw( Str Int HashRef );
 use namespace::autoclean; 
 use experimental qw( signatures ); 
 
+requires qw( probe select_id ); 
+
 has 'subtitle', ( 
     is       => 'ro', 
     isa      => HashRef, 
     traits   => [ 'Hash' ], 
     lazy     => 1, 
     init_arg => undef, 
-    builder  => '_build_subtitle', 
+    default  => sub { $_[0]->probe( 'subtitle' ) },  
     handles  => { 
         get_subtitle_ids => 'keys' 
     }
@@ -25,16 +27,8 @@ has 'subtitle_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    builder   => '_build_subtitle_id', 
+    default   => sub { $_[0]->select_id( Subtitle => $_[0]->subtitle ) }
 );   
-
-has 'ass', ( 
-    is       => 'ro', 
-    isa      => Str, 
-    lazy     => 1, 
-    init_arg => undef, 
-    builder  => '_build_ass', 
-); 
 
 has 'font_name', ( 
     is        => 'ro', 
@@ -58,15 +52,6 @@ has 'max_font_size',  (
     init_arg  => undef,
     default   => 32, 
 ); 
-
-sub extract_sub ( $self ) { 
-    system 
-        'ffmpeg', 
-        '-y', '-loglevel', 'fatal', 
-        '-i', $self->input, 
-        '-map', $self->subtitle_id, 
-        $self->ass; 
-} 
 
 sub clean_sub ( $self ) { 
     unlink $self->ass if $self->has_subtitle;  

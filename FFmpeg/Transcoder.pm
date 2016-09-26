@@ -8,7 +8,8 @@ use MooseX::Types::Moose qw( Str Int );
 use namespace::autoclean; 
 use experimental qw( signatures smartmatch );  
 
-with qw( FFmpeg::FFprobe FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle );  
+with qw( FFmpeg::FFprobe ); 
+with qw( FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle );  
 
 has 'input', (
     is       => 'ro', 
@@ -21,7 +22,15 @@ has 'output', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-    builder  => '_build_output' 
+    default  => sub {  basename( $_[0]->input ) =~ s/(.*)\..+?$/$1.mkv/r } 
+); 
+
+has 'ass', ( 
+    is       => 'ro', 
+    isa      => Str, 
+    lazy     => 1, 
+    init_arg => undef, 
+    default  => sub { basename( $_[0]->input ) =~ s/(.*)\..+?$/$1.ass/r }
 ); 
 
 has 'help', ( 
@@ -53,6 +62,15 @@ sub transcode ( $self ) {
         '-map', $self->audio_id, '-c:a', 'libfdk_aac', '-b:a', '128K', 
         '-vf', $self->filter, 
         $self->output; 
+} 
+
+sub extract_sub ( $self ) { 
+    system 
+        'ffmpeg', 
+        '-y', '-loglevel', 'fatal', 
+        '-i', $self->input, 
+        '-map', $self->subtitle_id, 
+        $self->ass; 
 } 
 
 sub modify_sub ( $self ) { 
@@ -115,16 +133,6 @@ sub select_id ( $self, $header, $stream ) {
         return $choice if $choice ~~ @ids 
     } 
 } 
-
-sub _build_output      ( $self ) { return basename( $self->input ) =~ s/(.*)\..+?$/$1.mkv/r }  
-sub _build_video       ( $self ) { return $self->probe( 'video' )                           } 
-sub _build_video_id    ( $self ) { return ( $self->get_video_ids )[0]                       } 
-sub _build_video_size  ( $self ) { return $self->get_video_size( $self->video_id )          } 
-sub _build_audio       ( $self ) { return $self->probe( 'audio' )                           }
-sub _build_audio_id    ( $self ) { return $self->select_id( Audio => $self->audio )         } 
-sub _build_subtitle    ( $self ) { return $self->probe( 'subtitle' )                        }
-sub _build_subtitle_id ( $self ) { return $self->select_id( Subtitle => $self->subtitle )   }
-sub _build_ass         ( $self ) { return basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r } 
 
 sub _build_filter ( $self ) { 
     my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 

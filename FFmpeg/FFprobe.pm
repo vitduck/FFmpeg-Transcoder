@@ -24,6 +24,7 @@ has 'ffprobe', (
 sub _build_ffprobe ( $self ) { 
     my %ffprobe = ();  
 
+    # redirect STDERR to STDOUT ? 
     open my $pipe, "-|", "ffprobe ${\$self->input} 2>&1"; 
 
     while ( <$pipe> ) {  

@@ -8,13 +8,15 @@ use FFmpeg::Types qw( Profile Preset Tune );
 use namespace::autoclean; 
 use experimental qw( signatures ); 
 
+requires qw( probe select_id ); 
+
 has 'video', ( 
     is        => 'ro', 
     isa       => HashRef, 
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
-    builder   => '_build_video',
+    default   => sub { $_[0]->probe( 'video' ) },  
     handles   => { 
         get_video_ids  => 'keys', 
         get_video_size => 'get', 
@@ -26,7 +28,7 @@ has 'video_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    builder   => '_build_video_id'
+    default   => sub { ( $_[0]->get_video_ids )[0] }
 );  
 
 has 'video_size', ( 
@@ -35,7 +37,7 @@ has 'video_size', (
     traits    => [ 'Hash' ],  
     lazy      => 1, 
     init_arg  => undef, 
-    builder   => '_build_video_size',
+    default   => sub { $_[0]->get_video_size( $_[0]->video_id ) }, 
     handles   => { 
         get_video_height => [ get => 'height' ], 
         get_video_width  => [ get => 'width'  ]
