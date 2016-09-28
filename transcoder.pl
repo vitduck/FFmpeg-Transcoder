@@ -59,10 +59,10 @@ x264 preset ( default: fast )
 GetOptions(
     \ my %option, 
     'help', 'scaled_height=i', 'font_name=s', 'tune=s', 'profile=s', 'preset=s', 'crt=i'
-) or pod2usage(-verbose => 1); 
+) or pod2usage( -verbose => 1 ); 
 
 # help message 
-if ( exists $option{help} ) { pod2usage(-verbose => 99, -section => \@usages) }  
+if ( exists $option{ help } ) { pod2usage( -verbose => 99, -section => \@usages ) }  
 
 my @fo = map { FFmpeg::Transcoder->new( input => $_, %option ) } @ARGV; 
 

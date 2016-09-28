@@ -15,7 +15,7 @@ has 'audio', (
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { $self->ffprobe->{'audio'} },  
+    builder   => '_build_audio', 
     handles   => { 
         get_audio     => 'get', 
         get_audio_ids => 'keys'  
@@ -27,7 +27,15 @@ has 'audio_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { $self->select_id( 'audio' ) }, 
+    builder   => '_build_audio_id' 
 ); 
+
+sub _build_audio ( $self ) { 
+    return $self->ffprobe->{ 'audio' } 
+}
+
+sub _build_audio_id ( $self ) { 
+    return $self->select_id( 'audio' ) 
+}
 
 1

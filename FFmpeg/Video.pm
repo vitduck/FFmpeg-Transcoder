@@ -14,7 +14,7 @@ has 'video', (
     traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { $self->ffprobe->{'video'} },  
+    builder   => '_build_video', 
     handles   => { 
         get_video_ids  => 'keys', 
         get_video_size => 'get', 
@@ -26,7 +26,7 @@ has 'video_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { ( $self->get_video_ids )[0] }
+    builder   => '_build_video_id', 
 );  
 
 has 'video_size', ( 
@@ -35,7 +35,7 @@ has 'video_size', (
     traits    => [ 'Hash' ],  
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { $self->get_video_size( $self->video_id ) }, 
+    builder   => '_build_video_size', 
     handles   => { 
         get_video_height => [ get => 'height' ], 
         get_video_width  => [ get => 'width'  ]
@@ -54,12 +54,26 @@ has 'scaled_width', (
     isa       => Int,  
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { 
-        my $width  = $self->get_video_width; 
-        my $height = $self->get_video_height; 
-
-        return 16 * int( $self->scaled_height * $width / $height / 16 ) 
-    } 
+    builder   => '_build_scaled_width'
 ); 
+
+sub _build_video ( $self ) { 
+    return   $self->ffprobe->{ 'video' } 
+}
+
+sub _build_video_id ( $self ) { 
+    return ( $self->get_video_ids )[ 0 ] 
+}
+
+sub _build_video_size ( $self ) { 
+    return $self->get_video_size( $self->video_id ) 
+}
+
+sub _build_scaled_width ( $self ) { 
+    my $width  = $self->get_video_width; 
+    my $height = $self->get_video_height; 
+
+    return 16 * int( $self->scaled_height * $width / $height / 16 ) 
+} 
 
 1  

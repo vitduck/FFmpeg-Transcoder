@@ -17,7 +17,7 @@ has 'subtitle', (
     traits   => [ 'Hash' ], 
     lazy     => 1, 
     init_arg => undef, 
-    default  => sub ( $self ) { $self->ffprobe->{'subtitle'} },  
+    builder  => '_build_sub', 
     handles  => { 
         get_subtitle_ids => 'keys' 
     }
@@ -28,7 +28,7 @@ has 'subtitle_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub ( $self ) { $self->select_id( 'subtitle' ) }
+    builder   => '_build_sub_id'
 );   
 
 has 'font_name', ( 
@@ -54,8 +54,16 @@ has 'max_font_size',  (
     default   => 32, 
 ); 
 
+sub _build_sub ( $self ) { 
+    return $self->ffprobe->{ 'subtitle' } 
+}
+
+sub _build_sub_id ( $self ) { 
+    return $self->select_id( 'subtitle' ) 
+}
+
 sub clean_sub ( $self ) { 
-    unlink $self->ass if $self->has_subtitle;  
+    unlink $self->ass if $self->has_subtitle 
 } 
 
 1  

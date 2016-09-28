@@ -23,7 +23,7 @@ has 'output', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-    default  => sub ( $self ) { basename( $self->input ) =~ s/(.*)\..+?$/$1.mkv/r } 
+    builder  => '_build_output'
 ); 
 
 has 'ass', ( 
@@ -31,7 +31,7 @@ has 'ass', (
     isa      => Str, 
     lazy     => 1, 
     init_arg => undef, 
-    default  => sub ( $self ) { basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r }
+    builder  => '_build_ass'
 ); 
 
 has 'help', ( 
@@ -53,8 +53,7 @@ sub BUILD ( $self, @ ) {
 } 
 
 sub transcode ( $self ) { 
-    system 
-        'ffmpeg', 
+    system 'ffmpeg', 
         '-stats', '-y', '-threads', 0, 
         '-i', $self->input,  
         '-map', $self->video_id, '-c:v', 'libx264', 
@@ -66,8 +65,7 @@ sub transcode ( $self ) {
 } 
 
 sub extract_sub ( $self ) { 
-    system 
-        'ffmpeg', 
+    system 'ffmpeg', 
         '-y', '-loglevel', 'fatal', 
         '-i', $self->input, 
         '-map', $self->subtitle_id, 
@@ -85,22 +83,25 @@ sub modify_sub ( $self ) {
         s/\r//g; 
 
         # remove intrinsic res and replaced with scaled one
-        s/PlayResX.+?(?<ResX>\d+)/PlayResX: ${\$self->scaled_width}/; 
-        s/PlayResY.+?(?<ResY>\d+)/PlayResY: ${\$self->scaled_height}/; 
+        s/PlayResX.+?(?<ResX>\d+)/PlayResX: ${ \$self->scaled_width }/; 
+        s/PlayResY.+?(?<ResY>\d+)/PlayResY: ${ \$self->scaled_height }/; 
 
         if ( /^Style: (?<style>.+?),(?<font_name>.+?),(?<font_size>.+?),(?<properties>.*)$/ ) { 
-            my $font_style = $+{style}; 
-            my $properties = $+{properties}; 
-            my $font_size  = int($self->scaled_height * $+{font_size} / $self->get_video_height);  
+            my $font_style = $+{ style }; 
+            my $properties = $+{ properties }; 
+
+            # font rescaling 
+            my $font_size  = int( 
+                $self->scaled_height * $+{ font_size } / $self->get_video_height 
+            );  
             
-            # rescaled the font 
             $font_size = 
                 $font_size < $self->min_font_size ? $self->min_font_size : 
                 $font_size > $self->max_font_size ? $self->max_font_size : 
                 $font_size; 
 
             # replace font 
-            s/^Style.*$/Style: $font_style,${\$self->font_name},$font_size,$properties/; 
+            s/^Style.*$/Style: $font_style,${ \$self->font_name },$font_size,$properties/; 
 
             # lower the vmargin (the next to last number in style definition )
             s/^(Style:.+?),(\d+),(\d+)$/$1,10,$2/; 
@@ -111,7 +112,7 @@ sub modify_sub ( $self ) {
     }  
 
     # remove backup subtitle 
-    unlink ${\$self->ass}.$^I; 
+    unlink ${ \$self->ass }.$^I; 
 } 
 
 sub select_id ( $self, $stream ) {  
@@ -125,7 +126,7 @@ sub select_id ( $self, $stream ) {
     while (1) { 
         # list of stream id 
         for my $id ( @ids ) { 
-            printf "[%s]\t%s\n", $id, $self->$stream->{$id}
+            printf "[%s]\t%s\n", $id, $self->$stream->{ $id }
         } 
         # prompt user for selection  
         print "-> "; 
@@ -140,24 +141,23 @@ sub _build_ffprobe ( $self ) {
     my %ffprobe = ();  
 
     # redirect STDERR to STDOUT ? 
-    open my $pipe, "-|", "ffprobe ${\$self->input} 2>&1"; 
+    open my $pipe, "-|", "ffprobe ${ \$self->input } 2>&1"; 
 
     while ( <$pipe> ) {  
         # video stream, width and height  
         if ( /Stream #(\d:\d)(\(.+?\))?: Video:.+?(?<width>\d{3,})x(?<height>\d{3,})/ ) { 
-            $ffprobe{video}{$1}->@{qw/width height/} = ( $+{width}, $+{height} ); 
+            $ffprobe{ video }{ $1 }->@{ qw( width height) } = ( $+{ width }, $+{ height } ); 
         } 
 
         # audio/subtitle stream
         if ( /Stream #(\d:\d)(?:\((.+?)\))?: (?<stream>audio|subtitle)/i ) {  
-            my ( $id, $lang ) = ( $1, $2); 
-            my $stream         = $+{stream};  
+            my ( $id, $lang ) = ( $1, $2 ); 
+            my $stream        = $+{ stream } ;  
             
             # set default lang 
-            #
             $lang //= 'eng'; 
 
-            $ffprobe{lc($stream)}{$id} = $lang; 
+            $ffprobe{ lc( $stream ) }{ $id } = $lang; 
         } 
     }            
 
@@ -168,15 +168,23 @@ sub _build_ffprobe ( $self ) {
 
 # FFmpeg::x264
 sub _build_filter ( $self ) { 
-    my $scale_filter = "scale=${\$self->scaled_width}x${\$self->scaled_height}"; 
-    my $ass_filter   = "ass=${\$self->ass}"; 
+    my $scale_filter = "scale=${ \$self->scaled_width }x${ \$self->scaled_height }"; 
+    my $ass_filter   = "ass=${ \$self->ass }"; 
 
-    return ( 
-        $self->has_subtitle ? 
-        join(',', $scale_filter, $ass_filter) : 
-        $scale_filter 
-    )
+    return  
+        $self->has_subtitle 
+        ? join( ',', $scale_filter, $ass_filter ) 
+        : $scale_filter 
 } 
+
+# native 
+sub _build_output ( $self ) { 
+    return basename( $self->input ) =~ s/(.*)\..+?$/$1.mkv/r 
+}
+
+sub _build_ass ( $self ) { 
+    return basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r 
+}
 
 __PACKAGE__->meta->make_immutable;
 
