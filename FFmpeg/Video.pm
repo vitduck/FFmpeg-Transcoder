@@ -2,11 +2,15 @@ package FFmpeg::Video;
 
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str Int HashRef ); 
-
 use namespace::autoclean; 
+
 use experimental qw( signatures ); 
 
-requires qw( ffprobe ); 
+requires qw( 
+    _build_video 
+    _build_video_id 
+    _build_video_size 
+); 
 
 has 'video', ( 
     is        => 'ro', 
@@ -15,6 +19,7 @@ has 'video', (
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_video', 
+
     handles   => { 
         get_video_ids  => 'keys', 
         get_video_size => 'get', 
@@ -36,6 +41,7 @@ has 'video_size', (
     lazy      => 1, 
     init_arg  => undef, 
     builder   => '_build_video_size', 
+
     handles   => { 
         get_video_height => [ get => 'height' ], 
         get_video_width  => [ get => 'width'  ]
@@ -56,18 +62,6 @@ has 'scaled_width', (
     init_arg  => undef, 
     builder   => '_build_scaled_width'
 ); 
-
-sub _build_video ( $self ) { 
-    return   $self->ffprobe->{ 'video' } 
-}
-
-sub _build_video_id ( $self ) { 
-    return ( $self->get_video_ids )[ 0 ] 
-}
-
-sub _build_video_size ( $self ) { 
-    return $self->get_video_size( $self->video_id ) 
-}
 
 sub _build_scaled_width ( $self ) { 
     my $width  = $self->get_video_width; 

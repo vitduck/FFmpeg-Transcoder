@@ -8,37 +8,42 @@ use MooseX::Types::Moose qw( Str Int );
 use namespace::autoclean; 
 use experimental qw( signatures smartmatch );  
 
-with qw( FFmpeg::FFprobe ); 
-with qw( FFmpeg::x264 ); 
-with qw( FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle );  
+with qw( 
+    FFmpeg::Prompt 
+    FFmpeg::FFprobe 
+    FFmpeg::Video 
+    FFmpeg::Audio 
+    FFmpeg::Subtitle    
+    FFmpeg::x264 
+); 
 
 has 'input', (
-    is       => 'ro', 
-    isa      => Str,   
-    required => 1, 
+    is        => 'ro', 
+    isa       => Str,   
+    required  => 1, 
 ); 
 
 has 'output', ( 
-    is       => 'ro', 
-    isa      => Str, 
-    lazy     => 1, 
-    init_arg => undef, 
-    builder  => '_build_output'
+    is        => 'ro', 
+    isa       => Str, 
+    lazy      => 1, 
+    init_arg  => undef, 
+    default   => sub { basename( shift->input ) =~ s/(.*)\..+?$/$1.mkv/r }
 ); 
 
 has 'ass', ( 
-    is       => 'ro', 
-    isa      => Str, 
-    lazy     => 1, 
-    init_arg => undef, 
-    builder  => '_build_ass'
+    is        => 'ro', 
+    isa       => Str, 
+    lazy      => 1, 
+    init_arg  => undef, 
+    default   => sub { basename( shift->input ) =~ s/(.*)\..+?$/$1.ass/r }
 ); 
 
 has 'help', ( 
-    is       => 'ro', 
-    isa      => Int, 
-    lazy     => 1, 
-    default  => 0 
+    is        => 'ro', 
+    isa       => Int, 
+    lazy      => 1, 
+    default   => 0 
 ); 
 
 sub BUILD ( $self, @ ) { 
@@ -115,27 +120,6 @@ sub modify_sub ( $self ) {
     unlink ${ \$self->ass }.$^I; 
 } 
 
-sub select_id ( $self, $stream ) {  
-    my @ids = sort keys $self->$stream->%*; 
-
-    # short-circuit
-    return shift @ids if @ids == 1; 
-    
-    printf "-> %s:\n", $stream; 
-    
-    while (1) { 
-        # list of stream id 
-        for my $id ( @ids ) { 
-            printf "[%s]\t%s\n", $id, $self->$stream->{ $id }
-        } 
-        # prompt user for selection  
-        print "-> "; 
-        chomp ( my $choice = <STDIN> ); 
-       
-        return $choice if $choice ~~ @ids 
-    } 
-} 
-
 # FFmpeg::FFprobe
 sub _build_ffprobe ( $self ) { 
     my %ffprobe = ();  
@@ -166,6 +150,15 @@ sub _build_ffprobe ( $self ) {
     return \%ffprobe; 
 } 
 
+# FFmpeg::Audio|Video|Subtitle
+sub _build_video      ( $self ) { return $self->ffprobe->{ 'video' } } 
+sub _build_video_id   ( $self ) { return ( $self->get_video_ids )[ 0 ] }
+sub _build_video_size ( $self ) { return $self->get_video_size( $self->video_id ) }
+sub _build_audio      ( $self ) { return $self->ffprobe->{ 'audio' } }
+sub _build_audio_id   ( $self ) { return $self->select_id( 'audio' ) }
+sub _build_sub        ( $self ) { return $self->ffprobe->{ 'subtitle' } }
+sub _build_sub_id     ( $self ) { return $self->select_id( 'subtitle' ) }
+
 # FFmpeg::x264
 sub _build_filter ( $self ) { 
     my $scale_filter = "scale=${ \$self->scaled_width }x${ \$self->scaled_height }"; 
@@ -176,15 +169,6 @@ sub _build_filter ( $self ) {
         ? join( ',', $scale_filter, $ass_filter ) 
         : $scale_filter 
 } 
-
-# native 
-sub _build_output ( $self ) { 
-    return basename( $self->input ) =~ s/(.*)\..+?$/$1.mkv/r 
-}
-
-sub _build_ass ( $self ) { 
-    return basename( $self->input ) =~ s/(.*)\..+?$/$1.ass/r 
-}
 
 __PACKAGE__->meta->make_immutable;
 
