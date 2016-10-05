@@ -2,7 +2,6 @@ package FFmpeg::Prompt;
 
 use Moose::Role; 
 use namespace::autoclean; 
-
 use experimental qw( signatures smartmatch );  
 
 sub select_id ( $self, $stream ) {  

@@ -1,26 +1,76 @@
 package FFmpeg::Transcoder; 
 
-use File::Basename;
-
 use Moose; 
 use MooseX::Types::Moose qw( Str Int ); 
-
+use FFmpeg::Types qw( Profile Preset Tune ); 
+use File::Basename;
 use namespace::autoclean; 
 use experimental qw( signatures smartmatch );  
 
-with qw( 
-    FFmpeg::Prompt 
-    FFmpeg::FFprobe 
-    FFmpeg::Video 
-    FFmpeg::Audio 
-    FFmpeg::Subtitle    
-    FFmpeg::x264 
-); 
+with qw( MooseX::Getopt::Usage ); 
+with qw( FFmpeg::Prompt FFmpeg::FFprobe ); 
+with qw( FFmpeg::Video FFmpeg::Audio FFmpeg::Subtitle FFmpeg::x264 ); 
 
 has 'input', (
     is        => 'ro', 
     isa       => Str,   
     required  => 1, 
+
+    documentation => 'Source file' 
+); 
+
+has 'scaled_height', ( 
+    is        => 'ro', 
+    isa       => Int, 
+    lazy      => 1, 
+    default   => 304, 
+
+    documentation => 'Rescaled height'
+); 
+
+has 'font_name', ( 
+    is        => 'ro', 
+    isa       => Str, 
+    lazy      => 1, 
+    default   => 'PF Armonia', 
+
+    documentation => 'Font of subtitle'
+); 
+
+has 'profile', ( 
+    is        => 'ro', 
+    isa       => Profile, 
+    lazy      => 1, 
+    default   => 'main', 
+    
+    documentation => 'x264 profile'
+); 
+
+has 'preset', ( 
+    is        => 'ro',
+    isa       => Preset,  
+    lazy      => 1, 
+    default   => 'fast', 
+    
+    documentation => 'x264 preset'
+); 
+
+has 'tune', ( 
+    is        => 'ro', 
+    isa       => Tune, 
+    lazy      => 1, 
+    default   => 'film', 
+    
+    documentation => 'x264 tune'
+); 
+
+has 'crf', ( 
+    is        => 'ro', 
+    isa       => Int, 
+    lazy      => 1, 
+    default   => '25', 
+    
+    documentation => 'x264 crt'
 ); 
 
 has 'output', ( 
@@ -37,13 +87,6 @@ has 'ass', (
     lazy      => 1, 
     init_arg  => undef, 
     default   => sub { basename( shift->input ) =~ s/(.*)\..+?$/$1.ass/r }
-); 
-
-has 'help', ( 
-    is        => 'ro', 
-    isa       => Int, 
-    lazy      => 1, 
-    default   => 0 
 ); 
 
 sub BUILD ( $self, @ ) { 
@@ -120,7 +163,6 @@ sub modify_sub ( $self ) {
     unlink ${ \$self->ass }.$^I; 
 } 
 
-# FFmpeg::FFprobe
 sub _build_ffprobe ( $self ) { 
     my %ffprobe = ();  
 
@@ -148,26 +190,6 @@ sub _build_ffprobe ( $self ) {
     close $pipe; 
 
     return \%ffprobe; 
-} 
-
-# FFmpeg::Audio|Video|Subtitle
-sub _build_video      ( $self ) { return $self->ffprobe->{ 'video' } } 
-sub _build_video_id   ( $self ) { return ( $self->get_video_ids )[ 0 ] }
-sub _build_video_size ( $self ) { return $self->get_video_size( $self->video_id ) }
-sub _build_audio      ( $self ) { return $self->ffprobe->{ 'audio' } }
-sub _build_audio_id   ( $self ) { return $self->select_id( 'audio' ) }
-sub _build_sub        ( $self ) { return $self->ffprobe->{ 'subtitle' } }
-sub _build_sub_id     ( $self ) { return $self->select_id( 'subtitle' ) }
-
-# FFmpeg::x264
-sub _build_filter ( $self ) { 
-    my $scale_filter = "scale=${ \$self->scaled_width }x${ \$self->scaled_height }"; 
-    my $ass_filter   = "ass=${ \$self->ass }"; 
-
-    return  
-        $self->has_subtitle 
-        ? join( ',', $scale_filter, $ass_filter ) 
-        : $scale_filter 
 } 
 
 __PACKAGE__->meta->make_immutable;

@@ -2,25 +2,19 @@ package FFmpeg::Subtitle;
 
 use Moose::Role;  
 use MooseX::Types::Moose qw( Str Int HashRef ); 
-use namespace::autoclean; 
-
 use File::Basename; 
-
+use namespace::autoclean; 
 use experimental qw( signatures ); 
 
-requires qw( 
-    _build_sub 
-    _build_sub_id 
-); 
+requires qw( probe select_id ); 
 
 has 'subtitle', ( 
     is        => 'ro', 
     isa       => HashRef, 
-    traits    => [ 'Hash' ], 
+    traits    => [ qw( Hash ) ], 
     lazy      => 1, 
     init_arg  => undef, 
-    builder   => '_build_sub', 
-
+    default   => sub { $_[0]->probe( 'subtitle' ) }, 
     handles  => { 
         get_subtitle_ids => 'keys' 
     }
@@ -31,15 +25,8 @@ has 'subtitle_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    builder   => '_build_sub_id'
+    default   => sub { $_[0]->select_id( 'subtitle' ) }, 
 );   
-
-has 'font_name', ( 
-    is        => 'ro', 
-    isa       => Str, 
-    lazy      => 1, 
-    default   => 'PF Armonia'
-); 
 
 has 'min_font_size', ( 
     is        => 'ro', 
@@ -57,6 +44,8 @@ has 'max_font_size',  (
     default   => 32, 
 ); 
 
-sub clean_sub ( $self ) { unlink $self->ass if $self->has_subtitle } 
+sub clean_sub ( $self ) { 
+    unlink $self->ass if $self->has_subtitle 
+} 
 
 1  
