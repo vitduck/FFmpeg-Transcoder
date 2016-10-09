@@ -2,9 +2,9 @@ package FFmpeg::Prompt;
 
 use Moose::Role; 
 use namespace::autoclean; 
-use experimental qw( signatures smartmatch );  
+use experimental qw( signatures smartmatch ); 
 
-sub select_id ( $self, $stream ) {  
+sub _select_id ( $self, $stream ) {  
     my @ids = sort keys $self->$stream->%*; 
 
     # short-circuit
@@ -14,10 +14,8 @@ sub select_id ( $self, $stream ) {
     
     while (1) { 
         # list of stream id 
-        for my $id ( @ids ) { 
-            printf "[%s]\t%s\n", $id, $self->$stream->{ $id }
-        } 
-        # prompt user for selection  
+        printf "[%s]\t%s\n", $_, $self->$stream->{ $_ } for @ids; 
+        
         print "-> "; 
         chomp ( my $choice = <STDIN> ); 
        

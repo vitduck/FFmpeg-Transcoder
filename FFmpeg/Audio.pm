@@ -5,19 +5,15 @@ use MooseX::Types::Moose qw( Str HashRef );
 use namespace::autoclean; 
 use experimental qw( signatures );  
 
-requires qw( probe select_id ); 
+requires qw( _build_audio _select_id );  
 
 has 'audio', ( 
     is        => 'ro', 
     isa       => HashRef, 
-    traits    => [ qw( Hash ) ], 
+    traits    => [ 'Hash' ], 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub { $_[0]->probe( 'audio' ) }, 
-    handles   => { 
-        get_audio     => 'get', 
-        get_audio_ids => 'keys'  
-    }
+    default   => sub { $_[0]->_build_audio }, 
 );   
 
 has 'audio_id', ( 
@@ -25,7 +21,8 @@ has 'audio_id', (
     isa       => Str, 
     lazy      => 1, 
     init_arg  => undef, 
-    default   => sub { $_[0]->select_id( 'audio' ) } 
+    reader    => 'get_audio_id', 
+    default   => sub { $_[0]->_select_id( 'audio' ) } 
 ); 
 
 1
