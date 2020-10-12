@@ -3,11 +3,17 @@
 use strict; 
 use warnings; 
 
-use FFmpeg::Transcoder; 
+use Data::Printer { class => {
+                        internals    => 1,
+                        parents      => 0,
+                        expand       => 2,
+                        show_methods => 'none' }, 
+                    scalar_quotes => '' };
 
-my $ffmpeg = FFmpeg::Transcoder->new_with_options; 
+use FFmpeg::Queue; 
 
-$ffmpeg->getopt_usage( exit => 1 ) if @ARGV == 0; 
+my $job = FFmpeg::Queue->new_with_options(); 
 
-$ffmpeg->transcode; 
-$ffmpeg->clean_sub; 
+$job->getopt_usage( exit => 1 ) if @ARGV == 0;
+
+$job->run; 

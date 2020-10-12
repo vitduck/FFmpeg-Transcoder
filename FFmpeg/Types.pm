@@ -1,11 +1,10 @@
 package FFmpeg::Types; 
 
-use MooseX::Types::Moose qw( Str Int ); 
-use MooseX::Types -declare => [ qw( Input Hwaccel Hwdecoder Device 
+use MooseX::Types::Moose qw(Int Str ArrayRef); 
+use MooseX::Types -declare => [ qw( Input Hwaccel Hwdecoder Device
                                     Audio Audio_Bitrate Audio_Profile
                                     Video Video_Bitrate Video_Profile Video_Preset
-                                    Filter 
-                                    Log_Level Stats Overwrite ) 
+                                    Filter Log_Level Stats Overwrite ) 
                               ]; 
 
 subtype Input,         as Str, where { /^-/ };  

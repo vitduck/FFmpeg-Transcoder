@@ -12,6 +12,10 @@ has 'filter' => (
     isa       => Filter, 
     predicate => '_has_filter', 
     coerce    => 1, 
+    lazy      => 1, 
+    default   => sub ($self) { 
+        $self->_has_hwaccel ? "scale_npp=${\$self->scale}" : "scale=${\$self->scale}" 
+    } 
 ); 
 
 has 'scale' => ( 

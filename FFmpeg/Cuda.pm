@@ -31,7 +31,6 @@ has 'device' => (
     isa       => Device,
     predicate => '_has_device',
     coerce    => 1, 
-    lazy      => 1, 
     default   => 0,
 );   
 
