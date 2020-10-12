@@ -3,57 +3,95 @@ package FFmpeg::Transcoder;
 use Moose; 
 use MooseX::Types::Moose qw( Str ); 
 use File::Basename; 
+use Data::Printer; 
+
+use FFmpeg::Types qw(Input Stats Log_Level Overwrite); 
+
 use namespace::autoclean; 
-use experimental qw( signatures smartmatch );  
+use experimental qw( signatures ); 
 
-extends qw( FFmpeg::Getopt );  
+with qw( 
+    FFmpeg::FFprobe FFmpeg::Filter 
+    FFmpeg::Cuda FFmpeg::Video FFmpeg::Audio );  
 
-with qw( FFmpeg::Prompt FFmpeg::FFprobe );  
-with qw( FFmpeg::Video FFmpeg::Audio );  
-with qw( FFmpeg::Subtitle );  
-with qw( FFmpeg::Filter );  
+has 'input', (
+    is            => 'rw', 
+    isa           => Input,   
+    predicate     => '_has_input',
+    coerce        => 1,
+); 
 
 has 'output', ( 
-    is        => 'ro', 
-    isa       => Str, 
+    is            => 'rw', 
+    isa           => Str, 
+    predicate     => '_has_output',
+    default       => sub { 
+        mkdir 'output'; 
+        join('/', 'output', basename((split ' ', shift->input)[1])) 
+    },  
+); 
+
+has 'log_level' => ( 
+    is        => 'rw', 
+    isa       => Log_Level, 
+    predicate => '_has_log_level',
     lazy      => 1, 
-    init_arg  => undef, 
-    reader    => 'get_output', 
-    default   => sub { basename( $_[0]->get_input ) =~ s/(.*)\..+?$/$1.mkv/r }
+    coerce    => 1,
+    default   => '32' 
+); 
+
+has 'stats' => ( 
+    is        => 'rw', 
+    isa       => Stats, 
+    predicate => '_has_stats',
+    lazy      => 1, 
+    coerce    => 1,
+    default   => '0' 
+); 
+
+has 'overwrite' => ( 
+    is        => 'rw', 
+    isa       => Overwrite, 
+    predicate => '_has_overwrite',
+    coerce    => 1,
+    default   => 1
 ); 
 
 sub BUILD ( $self, @ ) { 
-    # cache output ffrobe
-    $self->ffprobe; 
+    $self->_ffprobe; 
 
-    # subtitle
-    if ( $self->has_subtitle ) { 
-        $self->extract_sub; 
-        $self->modify_sub
-    }
+    # cuvid decoder 
+    if ( $self->decoder =~ /(h264|hevc|mpeg1|mpeg2|mpeg4|vc1|vp8|vp9)/ ) { 
+        $self->hwaccel; 
+        $self->hwdecoder; 
+    } 
 } 
 
 sub transcode ( $self ) { 
-    system 
-        'ffmpeg', 
-        '-stats', '-y', '-threads', 0, 
-        '-i', $self->get_input, 
-        '-map', $self->get_video_id, '-c:v', 'libx264', 
-        '-profile:v', $self->get_profile, '-preset', $self->get_preset, 
-        '-tune', $self->get_tune, '-crf', $self->get_crf,
-        '-map', $self->get_audio_id, '-c:a', 'libfdk_aac', '-b:a', '128K', 
-        '-vf', $self->get_filter, 
-        $self->get_output; 
+    my @cmd = ('ffmpeg'); 
+
+    
+    for my $opt ( qw( hwaccel hwdecoder device input filter
+                      video video_bitrate video_profile video_preset
+                      audio audio_bitrate audio_profile 
+                      log_level stats overwrite
+                      output ) ) { 
+        my $has = join('_', '_has', $opt); 
+        push @cmd, $self->$opt if $self->$has; 
+    }
+
+    p @cmd; 
+    # system(join ' ', @cmd);
 } 
 
-sub extract_sub ( $self ) { 
-    system 
-        'ffmpeg', 
-        '-y', '-loglevel', 'fatal', 
-        '-i', $self->get_input, 
-        '-map', $self->get_subtitle_id, 
-        $self->get_ass; 
-} 
+# sub extract_sub ( $self ) { 
+    # system 
+        # 'ffmpeg', 
+        # '-y', '-loglevel', 'fatal', 
+        # '-i', $self->get_input, 
+        # '-map', $self->get_subtitle_id, 
+        # $self->get_ass; 
+# } 
 
 __PACKAGE__->meta->make_immutable;
 

@@ -2,48 +2,47 @@ package FFmpeg::FFprobe;
 
 use Moose::Role; 
 use MooseX::Types::Moose qw( HashRef );  
-use autodie; 
+use String::Util 'trim'; 
+
 use namespace::autoclean; 
 use experimental qw( signatures smartmatch ); 
 
-requires qw( get_input );  
-
-has 'ffprobe', ( 
+has '_ffprobe', ( 
     is        => 'ro', 
     isa       => HashRef, 
+    init_arg  => undef, 
     traits    => [ 'Hash' ], 
     lazy      => 1, 
-    init_arg  => undef, 
     builder   => '_build_ffprobe', 
     handles   => { 
-        _build_audio    => [ get    => 'audio'    ], 
-        _build_video    => [ get    => 'video'    ], 
-        _build_subtitle => [ get    => 'subtitle' ], 
-        has_subtitle    => [ exists => 'subtitle' ]
+        decoder => [ get => 'video' ], 
     }
 ); 
 
 sub _build_ffprobe ( $self ) { 
     my %ffprobe = ();  
 
-    # redirect STDERR to STDOUT ? 
-    open my $pipe, "-|", "ffprobe ${ \$self->get_input } 2>&1"; 
+    my $input = (split ' ', $self->input)[1]; 
+
+    open my $pipe, "-|", "ffprobe  -hide_banner $input 2>&1"; 
 
     while ( <$pipe> ) {  
-        # video stream, width and height  
-        if ( /Stream #(\d:\d)(\(.+?\))?: Video:.+?(?<width>\d{3,})x(?<height>\d{3,})/ ) { 
-            $ffprobe{ video }{ $1 }->@{ qw( width height) } = ( $+{ width }, $+{ height } ); 
-        } 
+        #print; 
 
-        # audio/subtitle stream
-        if ( /Stream #(\d:\d)(?:\((.+?)\))?: (?<stream>audio|subtitle)/i ) {  
-            my ( $id, $lang ) = ( $1, $2 ); 
-            my $stream        = $+{ stream } ;  
-            
-            # set default lang 
-            $lang //= 'eng'; 
+        if ( /Duration: (.+?), start: (.+?), bitrate: (\d+ kb\/s)/ ) { 
+            @ffprobe{qw(duration overall_bitrate)} = ($1, $3); 
+        }
 
-            $ffprobe{ lc( $stream ) }{ $id } = $lang; 
+        # video stream
+        if ( /Stream #\d:\d.+?Video:(.*)/ ) { 
+            @ffprobe{qw(video pix_fmt resolution video_bitrate)} = map { trim $_ } (split /,/, $1)[0,1,2,3];
+            @ffprobe{qw(video video_profile)} = ($1, $2) if $ffprobe{video} =~ /^(.+?) \((.+?)\)/; 
+        }
+
+        # audio stream
+        if ( /Stream #\d:\d.+?Audio:(.*)/ ) { 
+            @ffprobe{qw(audio audio_bitrate)} = map { trim $_ } (split /,/, $1)[0,-1];
+            @ffprobe{qw(audio audio_profile)} = ($1, $2) if $ffprobe{audio} =~ /^(.+?) \((.+?)\)/; 
         } 
     }            
 
