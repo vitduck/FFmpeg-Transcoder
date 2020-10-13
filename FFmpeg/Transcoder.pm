@@ -18,27 +18,9 @@ has 'input', (
     coerce        => 1,
 ); 
 
-has 'output', ( 
-    is            => 'rw', 
-    isa           => Str, 
-    predicate     => '_has_output',
-    default       => sub { 
-        mkdir 'output'; 
-        join('/', 'output', basename((split ' ', shift->input)[1])) 
-    },  
-); 
-
-has 'overwrite' => ( 
-    is        => 'rw', 
-    isa       => Overwrite, 
-    predicate => '_has_overwrite',
-    coerce    => 1,
-    default   => 1
-); 
-
 sub BUILD ( $self, @ ) { 
     $self->_ffprobe; 
-
+    
     # cuvid decoder 
     if ( $self->decoder =~ /(h264|hevc|mpeg1|mpeg2|mpeg4|vc1|vp8|vp9)/ ) { 
         $self->hwaccel; 
