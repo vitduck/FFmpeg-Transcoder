@@ -1,7 +1,7 @@
-package FFmpeg::Log; 
+package FFmpeg::Opt; 
 
 use Moose::Role; 
-use FFmpeg::Types qw(Stats Log_Level); 
+use FFmpeg::Types qw(Stats Log_Level Overwrite); 
 
 has 'log_level' => ( 
     is        => 'rw', 
@@ -19,6 +19,14 @@ has 'stats' => (
     lazy      => 1, 
     coerce    => 1,
     default   => '1' 
+); 
+
+has 'overwrite' => ( 
+    is        => 'rw', 
+    isa       => Overwrite, 
+    predicate => '_has_overwrite',
+    coerce    => 1,
+    default   => 1
 ); 
 
 1

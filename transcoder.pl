@@ -10,9 +10,9 @@ use Data::Printer { class => {
                         show_methods => 'none' }, 
                     scalar_quotes => '' };
 
-use FFmpeg::Queue; 
+use FFmpeg::Transcoder;
 
-my $job = FFmpeg::Queue->new_with_options(); 
+my $job = FFmpeg::Transcoder->new_with_options(); 
 
 $job->getopt_usage( exit => 1 ) if @ARGV == 0;
 

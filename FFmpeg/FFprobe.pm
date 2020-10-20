@@ -4,8 +4,17 @@ use Moose::Role;
 use MooseX::Types::Moose qw( HashRef );  
 use String::Util 'trim'; 
 
+use FFmpeg::Types qw(Input); 
+
 use namespace::autoclean; 
 use experimental qw( signatures smartmatch ); 
+
+has input => (
+    is        => 'rw', 
+    isa       => Input,   
+    predicate => '_has_input',
+    coerce   => 1,
+); 
 
 has '_ffprobe', ( 
     is        => 'ro', 
