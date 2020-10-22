@@ -1,13 +1,12 @@
 package FFmpeg::FFprobe; 
 
 use Moose::Role; 
-use MooseX::Types::Moose qw( HashRef );  
+use MooseX::Types::Moose 'HashRef';  
 use String::Util 'trim'; 
-
-use FFmpeg::Types qw(Input); 
+use FFmpeg::Types 'Input'; 
 
 use namespace::autoclean; 
-use experimental qw( signatures smartmatch ); 
+use experimental 'signatures'; 
 
 has input => (
     is        => 'rw', 

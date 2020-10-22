@@ -1,10 +1,10 @@
 package FFmpeg::Video; 
 
-use namespace::autoclean; 
-use experimental qw( signatures ); 
-
 use Moose::Role;  
-use FFmpeg::Types qw(Video Video_Bitrate Video_Profile Video_Preset); 
+use FFmpeg::Types qw( Video Video_Bitrate Video_Profile Video_Preset ); 
+
+use namespace::autoclean; 
+use experimental 'signatures'; 
 
 has 'video', ( 
     is        => 'rw', 

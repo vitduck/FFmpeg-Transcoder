@@ -1,7 +1,7 @@
 package FFmpeg::Transcoder; 
 
 use Moose; 
-use MooseX::Types::Moose qw( Str );  
+use MooseX::Types::Moose 'Str';  
 
 use namespace::autoclean; 
 use experimental 'signatures'; 
@@ -10,7 +10,8 @@ with qw(
     MooseX::Getopt::Usage
     FFmpeg::FFprobe FFmpeg::Audio FFmpeg::Video 
     FFmpeg::Opt FFmpeg::Cuda FFmpeg::Filter FFmpeg::Output 
-); 
+    FFmpeg::Debug
+);   
 
 has  cmd => (
     is       => 'ro', 
@@ -19,15 +20,16 @@ has  cmd => (
     lazy     => 1, 
     default  => sub ($self) { 
         my @ffmpeg_opts = ( 'ffmpeg' ); 
+    
+        $self->filter if $self->_has_scale; 
 
         for my $opt ( qw( 
-                          log_level stats overwrite
-                          device hwaccel hwdecoder 
-                          input 
-                          filter video video_bitrate video_profile video_preset
-                          audio audio_bitrate audio_profile 
-                        ) 
-                    ) { 
+                         log_level stats overwrite
+                         device hwaccel hwdecoder 
+                         input 
+                         filter video video_bitrate video_profile video_preset
+                         audio audio_bitrate audio_profile 
+                       ) ) { 
             my $has = join('_', '_has', $opt); 
             push @ffmpeg_opts, $self->$opt if $self->$has; 
         }

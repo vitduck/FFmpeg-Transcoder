@@ -1,10 +1,10 @@
 package FFmpeg::Cuda; 
 
-use namespace::autoclean; 
-use experimental qw( signatures );  
-
 use Moose::Role;  
-use FFmpeg::Types qw(Hwaccel Hwdecoder Device); 
+use FFmpeg::Types qw( Hwaccel Hwdecoder Device ); 
+
+use namespace::autoclean; 
+use experimental 'signatures';  
 
 has 'hwaccel' => ( 
     is        => 'rw', 

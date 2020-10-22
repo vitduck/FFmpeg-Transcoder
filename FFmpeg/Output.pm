@@ -1,11 +1,11 @@
 package FFmpeg::Output; 
 
 use Moose::Role;  
-use MooseX::Types::Moose qw( Str ); 
+use MooseX::Types::Moose 'Str'; 
 use File::Basename; 
 
 use namespace::autoclean; 
-use experimental qw( signatures );  
+use experimental 'signatures';  
 
 has container => ( 
     is        => 'rw', 
@@ -27,11 +27,11 @@ has outfile => (
     predicate => '_has_outfile', 
     lazy      => 1, 
     default   => sub ( $self ) { 
-        join( 
-            '/', 
-            $self->outdir, 
-            basename((split' ', $self->input)[1]) =~ s/(.*)\.(.+?)$/$1.${\$self->container}/r 
-        )
+        my $format  = $self->container; 
+        my $input   = basename( ( split' ', $self->input )[1] ); 
+        my $outfile = $input =~ s/(.*)\.(.+?)$/$1.$format/r; 
+
+        return join( '/', $self->outdir, $outfile ); 
     } 
 ); 
 

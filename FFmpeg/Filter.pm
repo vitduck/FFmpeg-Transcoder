@@ -1,7 +1,7 @@
 package FFmpeg::Filter; 
 
 use Moose::Role; 
-use MooseX::Types::Moose qw( Str ArrayRef );  
+use MooseX::Types::Moose 'Str';  
 use FFmpeg::Types 'Filter'; 
 
 use namespace::autoclean; 
@@ -14,17 +14,18 @@ has 'filter' => (
     clearer   => '_unset_filter',
     coerce    => 1, 
     lazy      => 1, 
-    default   => sub ($self) { $self->_has_hwaccel 
-                               ? "scale_npp=${\$self->scale}" 
-                               : "scale=${\$self->scale}" } 
+    default   => sub ($self) { 
+        return 
+            $self->_has_hwaccel 
+            ? "scale_npp=${\$self->scale}" 
+            : "scale=${\$self->scale}" 
+    } 
 ); 
 
 has 'scale' => ( 
     is        => 'rw', 
     isa       => Str, 
     predicate => '_has_scale', 
-    trigger   => sub ( $self ) { $self->filter }
-
 );  
 
 1

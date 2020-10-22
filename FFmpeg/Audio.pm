@@ -1,10 +1,10 @@
 package FFmpeg::Audio; 
 
-use namespace::autoclean; 
-use experimental qw( signatures );  
-
 use Moose::Role;  
-use FFmpeg::Types qw(Audio Audio_Bitrate Audio_Profile); 
+use FFmpeg::Types qw( Audio Audio_Bitrate Audio_Profile ); 
+
+use namespace::autoclean; 
+use experimental 'signatures';  
 
 has 'audio' => ( 
     is        => 'rw', 

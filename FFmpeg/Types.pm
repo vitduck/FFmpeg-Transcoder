@@ -1,11 +1,12 @@
 package FFmpeg::Types; 
 
 use MooseX::Types::Moose qw(Int Str ArrayRef); 
-use MooseX::Types -declare => [ qw( Input Hwaccel Hwdecoder Device
-                                    Audio Audio_Bitrate Audio_Profile
-                                    Video Video_Bitrate Video_Profile Video_Preset
-                                    Filter Log_Level Stats Overwrite ) 
-                              ]; 
+use MooseX::Types -declare => [ qw( 
+    Input Hwaccel Hwdecoder Device
+    Audio Audio_Bitrate Audio_Profile
+    Video Video_Bitrate Video_Profile Video_Preset
+    Filter Log_Level Stats Overwrite ) 
+]; 
 
 subtype Input,         as Str, where { /^-/ };  
 subtype Hwaccel,       as Str, where { /^-/ };  
@@ -36,7 +37,7 @@ coerce  Video_Profile, from Str, via { join(' ', '-profile:v',      shift) };
 coerce  Video_Preset,  from Str, via { join(' ', '-preset',         shift) }; 
 coerce  Filter,        from Str, via { join(' ', '-vf',             shift) };  
 coerce  Log_Level,     from Str, via { join(' ', '-loglevel',       shift) };  
-coerce  Overwrite,     from Str, via { shift ? '-y'     : '-n'       };  
-coerce  Stats,         from Str, via { shift ? '-stats' : '-nostats' };  
+coerce  Overwrite,     from Str, via { shift ? '-y'     : '-n'             };  
+coerce  Stats,         from Str, via { shift ? '-stats' : '-nostats'       };  
 
 1
